@@ -14,48 +14,48 @@
 <body class="bg-gray-100 h-screen flex flex-col font-['Inter']">
     <!-- Header -->
     <header class="bg-white shadow-md p-4">
-        <div class="max-w-4xl mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-semibold text-gray-800">💬 Chat with Grandpa</h1>
-            <div class="flex items-center space-x-4">
+        <div class="max-w-4xl mx-auto flex flex-col sm:flex-row justify-between items-center">
+            <h1 class="text-2xl font-semibold text-gray-800 mb-4 sm:mb-0">💬 Chat with Grandpa</h1>
+            <div class="flex items-center space-x-2 sm:space-x-4">
                 <button id="chats" class="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition duration-300 ease-in-out" data-tippy-content="Manage chats">
-                    <i data-feather="message-circle"></i>
+                    <i data-feather="message-circle" class="w-5 h-5"></i>
                 </button>
                 <button id="documents" class="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition duration-300 ease-in-out" data-tippy-content="Manage your documents">
-                    <i data-feather="folder"></i>
+                    <i data-feather="folder" class="w-5 h-5"></i>
                 </button>
                 <button id="alert" class="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition duration-300 ease-in-out" data-tippy-content="You have a new update or messages">
-                    <i data-feather="bell"></i>
+                    <i data-feather="bell" class="w-5 h-5"></i>
                 </button>
                 <button id="reports" class="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition duration-300 ease-in-out" data-tippy-content="Request report">
-                    <i data-feather="file-text"></i>
+                    <i data-feather="file-text" class="w-5 h-5"></i>
                 </button>
                 <button id="logout" onclick="logout();" class="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition duration-300 ease-in-out" data-tippy-content="Logout">
-                    <i data-feather="log-out"></i>
+                    <i data-feather="log-out" class="w-5 h-5"></i>
                 </button>
-                <button class="px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition duration-300 ease-in-out flex items-center" data-tippy-content="Change the account type">
-                    <i data-feather="star" class="mr-2"></i> Premium
+                <button class="px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition duration-300 ease-in-out flex items-center text-sm" data-tippy-content="Change the account type">
+                    <i data-feather="star" class="w-4 h-4 mr-2"></i> Premium
                 </button>
             </div>
         </div>
     </header>
 
     <!-- Chat Section -->
-    <div class="flex-1 flex flex-col max-w-4xl mx-auto w-full bg-white shadow-lg rounded-lg overflow-hidden my-4">
+    <div class="flex-1 flex flex-col max-w-4xl mx-auto w-full bg-white shadow-lg rounded-lg overflow-hidden my-4 px-4 sm:px-0">
         <!-- Chat Messages -->
-        <div id="chat-box" class="flex-1 overflow-y-auto p-6 space-y-4">
+        <div id="chat-box" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
             {% if msgs %}
             {% for obj in msgs|slice:":20" %}
                 {% if obj.if_user %}
                     <div class="flex justify-end">
-                        <div class="bg-blue-500 text-white p-3 rounded-2xl max-w-[70%] shadow-md">
-                            <p>{{obj.msg}}</p>
+                        <div class="bg-blue-500 text-white p-3 rounded-2xl max-w-[80%] sm:max-w-[70%] shadow-md">
+                            <p class="text-sm sm:text-base">{{obj.msg}}</p>
                             <div class="text-xs text-blue-200 text-right mt-1">{{obj.create_date}}</div>
                         </div>
                     </div>
                 {% else %}
                     <div class="flex justify-start">
-                        <div class="bg-gray-100 text-gray-800 p-3 rounded-2xl max-w-[70%] shadow-md">
-                            <p>{{obj.msg}}</p>
+                        <div class="bg-gray-100 text-gray-800 p-3 rounded-2xl max-w-[80%] sm:max-w-[70%] shadow-md">
+                            <p class="text-sm sm:text-base">{{obj.msg}}</p>
                             <div class="text-xs text-gray-500 text-right mt-1">{{obj.create_date}}</div>
                         </div>
                     </div>
@@ -63,8 +63,8 @@
             {% endfor %}
             {% else %}
                 <div class="flex justify-start">
-                    <div class="bg-gray-100 text-gray-800 p-3 rounded-2xl max-w-[70%] shadow-md">
-                        <p>Hello, grandson! How can I help you today? 😊</p>
+                    <div class="bg-gray-100 text-gray-800 p-3 rounded-2xl max-w-[80%] sm:max-w-[70%] shadow-md">
+                        <p class="text-sm sm:text-base">Hello, grandson! How can I help you today? 😊</p>
                         <div class="text-xs text-gray-500 text-right mt-1">10:30 AM</div>
                     </div>
                 </div>
@@ -74,9 +74,9 @@
         <!-- Chat Input -->
         <form id="chat-form" class="p-4 bg-gray-50 border-t flex items-center space-x-2" autocomplete="off">
             {% csrf_token %}
-            <input type="text" id="chat-input" class="flex-1 p-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent" placeholder="Type your message..." required>
+            <input type="text" id="chat-input" class="flex-1 p-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent text-sm sm:text-base" placeholder="Type your message..." required>
             <button type="submit" class="p-3 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition duration-300 ease-in-out" data-tippy-content="Send message">
-                <i id="sendicon" data-feather="send"></i>
+                <i id="sendicon" data-feather="send" class="w-5 h-5"></i>
             </button>
         </form>
     </div>
@@ -101,8 +101,8 @@
                 let timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                 let userMessage = `
                     <div class="flex justify-end">
-                        <div class="bg-blue-500 text-white p-3 rounded-2xl max-w-[70%] shadow-md">
-                            <p>${message}</p>
+                        <div class="bg-blue-500 text-white p-3 rounded-2xl max-w-[80%] sm:max-w-[70%] shadow-md">
+                            <p class="text-sm sm:text-base">${message}</p>
                             <div class="text-xs text-blue-200 text-right mt-1">${timestamp}</div>
                         </div>
                     </div>`;
@@ -121,8 +121,8 @@
                         let ans_timestamp = data.tst;
                         let ans_Message = `
                             <div class="flex justify-start">
-                                <div class="bg-gray-100 text-gray-800 p-3 rounded-2xl max-w-[70%] shadow-md">
-                                    <p>${data.message}</p>
+                                <div class="bg-gray-100 text-gray-800 p-3 rounded-2xl max-w-[80%] sm:max-w-[70%] shadow-md">
+                                    <p class="text-sm sm:text-base">${data.message}</p>
                                     <div class="text-xs text-gray-500 text-right mt-1">${timestamp}</div>
                                 </div>
                             </div>`;
