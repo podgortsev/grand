@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+            padding: 2rem;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .auth-container h2 {
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .input-group input:not([type="radio"]) {
+            width: 100%;
+            padding: 10px 0;
+            font-size: 1rem;
+            color: #333;
+            border: none;
+            border-bottom: 1px solid #999;
+            outline: none;
+            background: transparent;
+            transition: 0.3s;
+        }
+
+        .input-group label:not(.radio-label) {
+            position: absolute;
+            top: 0;
+            left: 0;
+            padding: 10px 0;
+            font-size: 1rem;
+            color: #666;
+            pointer-events: none;
+            transition: 0.3s;
+        }
+
+        .input-group input:focus ~ label:not(.radio-label),
+        .input-group input:valid ~ label:not(.radio-label) {
+            top: -20px;
+            font-size: 0.8rem;
+            color: #667eea;
+        }
+
+        .input-group input:focus {
+            border-bottom: 2px solid #667eea;
+        }
+
+        .radio-group {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .radio-group label {
+            margin-right: 20px;
+            color: #333;
+        }
+
+        .radio-label {
+            margin-left: 5px;
+        }
+
+        .explanation {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 0.5rem;
+            text-align: left;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #667eea;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #764ba2;
+        }
+
+        .links {
+            margin-top: 1rem;
+        }
+
+        .links a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin: 0 10px;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .links a:hover {
+            color: #764ba2;
+        }
+
+        .form-container {
+            display: none;
+        }
+
+        .form-container.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div id="login-form" class="form-container">
+            <h2>Welcome Back</h2>
+            <form onsubmit="return handleLogin(event)">
+                <div class="input-group">
+                    <input type="email" id="login-email" required>
+                    <label for="login-email">Email</label>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="login-password" required>
+                    <label for="login-password">Password</label>
+                </div>
+                <button type="submit">Sign In</button>
+            </form>
+            <div class="links">
+                <a href="#" onclick="toggleForm('signup-form')">Create an account</a>
+            </div>
+        </div>
+
+        <div id="signup-form" class="form-container active">
+            <h2>Create Account</h2>
+            <form onsubmit="return handleSignup(event)">
+                <div class="input-group">
+                    <input type="text" id="name" required>
+                    <label for="name">Name</label>
+                </div>
+                <div class="input-group">
+                    <input type="email" id="signup-email" required>
+                    <label for="signup-email">Email</label>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="signup-password" required>
+                    <label for="signup-password">Password</label>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="confirm-password" required>
+                    <label for="confirm-password">Repeat Password</label>
+                </div>
+                <div class="input-group">
+                    <input type="url" id="documents-link" required>
+                    <label for="documents-link">Link to Documents</label>
+                    <p class="explanation">We currently are not storing personal data for security reasons.</p>
+                </div>
+                <div class="radio-group">
+                    <label style="margin-right: 12px;font-size: 15px;">Have you visited a doctor?</label>
+                    <input type="radio" id="doctor-yes" name="visited-doctor" value="yes" required>
+                    <label for="doctor-yes" class="radio-label">Yes</label>
+                    <input type="radio" id="doctor-no" name="visited-doctor" value="no" required>
+                    <label for="doctor-no" class="radio-label">No</label>
+                </div>
+                <button type="submit">Sign Up</button>
+            </form>
+            <div class="links">
+                <a href="#" onclick="toggleForm('login-form')">Already have an account? Log In</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleForm(formId) {
+            document.querySelectorAll('.form-container').forEach(form => {
+                form.classList.remove('active');
+            });
+            document.getElementById(formId).classList.add('active');
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            $.ajax({
+				url : '/login',
+				type : 'POST',
+				data : {
+					'email' : email,
+					'password' : password
+				},
+				dataType:'json',
+				success : function(data) {              
+					location.reload();
+				},
+                error: function(xhr) {
+                    location.reload();
+                }
+			});
+            return false;
+        }
+
+        function handleSignup(event) {
+            event.preventDefault();
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            const documentsLink = document.getElementById('documents-link').value;
+            const visitedDoctor = document.querySelector('input[name="visited-doctor"]:checked').value;
+            
+            if (password !== confirmPassword) {
+                alert("Passwords don't match!");
+                return false;
+            }
+            
+            // For demonstration purposes, we'll just log to the console
+            $.ajax({
+				url : '/signup',
+				type : 'POST',
+				data : {
+					'name' : name,
+					'email' : email,
+					'password' : password,
+					'documentsLink' : documentsLink,
+					'visitedDoctor' : visitedDoctor
+				},
+				dataType:'json',
+				success : function(data) {              
+					location.reload();
+				},
+                error: function(xhr) {
+                    location.reload();
+                }
+			});
+            return false;
+        }
+    </script>
+</body>
+</html>
+
