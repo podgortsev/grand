@@ -29,10 +29,9 @@ def signup(request):
         if request.method == 'POST':
             if not User.objects.filter(username = request.POST["email"]).exists():
                 user = User.objects.create_user(username=request.POST["email"],
-                                        email=request.POST["visitedDoctor"],
+                                        email=request.POST["email"],
                                         password=request.POST["password"],
-                                        first_name=request.POST["name"],
-                                        last_name=request.POST["documentsLink"])
+                                        first_name=request.POST["name"])
                 user = authenticate(request, username=request.POST["email"],
                                     password=request.POST["password"])
                 login(request, user)
