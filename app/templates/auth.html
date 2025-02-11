@@ -228,8 +228,6 @@
             const email = document.getElementById('signup-email').value;
             const password = document.getElementById('signup-password').value;
             const confirmPassword = document.getElementById('confirm-password').value;
-            const documentsLink = document.getElementById('documents-link').value;
-            const visitedDoctor = document.querySelector('input[name="visited-doctor"]:checked').value;
             
             if (password !== confirmPassword) {
                 alert("Passwords don't match!");
@@ -243,9 +241,7 @@
 				data : {
 					'name' : name,
 					'email' : email,
-					'password' : password,
-					'documentsLink' : documentsLink,
-					'visitedDoctor' : visitedDoctor
+					'password' : password
 				},
 				dataType:'json',
 				success : function(data) {              
