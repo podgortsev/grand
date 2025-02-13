@@ -4,294 +4,690 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat Ask Grandpa</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+    <script src="https://unpkg.com/tippy.js@6"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        .modal {
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+        #auth,#planprem{
             display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
+            position: fixed;       /* Fixes the position of the popup to the viewport */
             top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4);
+            left: 0;
+            right: 0;
+            bottom: 0;
+            justify-content: center; /* Center horizontally */
+            align-items: center;   /* Center vertically */
+            background-color: rgba(0, 0, 0, 0.5);  /* Semi-transparent black background */
+            z-index: 9999; 
         }
-        .modal-content {
-            background-color: #fefefe;
-            margin: 15% auto;
+        #authblack,#planpremblack{
+            position: absolute;   /* Positions the overlay behind the content */
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: black; /* Solid black background */
+            opacity: 0.5;          
+        }
+
+        .auth-container {
+            position: relative;    /* Keeps the child above the overlay */
             padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 500px;
-            border-radius: 8px;
+            z-index: 10000;
+            background-color: rgba(255, 255, 255);
+            border-radius: 10px;
+            box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+            padding: 2rem;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
         }
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
+
+        .auth-container h2 {
+            color: #333;
+            font-size:18px;
         }
-        .close:hover,
-        .close:focus {
-            color: black;
-            text-decoration: none;
+
+        .auth-container .input-group {
+            position: relative;
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .auth-container .input-group input:not([type="radio"]) {
+            width: 100%;
+            padding: 10px 0;
+            font-size: 1rem;
+            color: #333;
+            border: none;
+            border-bottom: 1px solid #999;
+            outline: none;
+            background: transparent;
+            transition: 0.3s;
+        }
+
+        .auth-container .input-group label:not(.radio-label) {
+            position: absolute;
+            top: 0;
+            left: 0;
+            padding: 10px 0;
+            font-size: 1rem;
+            color: #666;
+            pointer-events: none;
+            transition: 0.3s;
+        }
+
+        .auth-container .input-group input:focus ~ label:not(.radio-label),
+        .auth-container .input-group input:valid ~ label:not(.radio-label) {
+            top: -20px;
+            font-size: 0.8rem;
+            color: #667eea;
+        }
+
+        .auth-container .input-group input:focus {
+            border-bottom: 2px solid #667eea;
+        }
+
+        .auth-container .radio-group {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .auth-container .radio-group label {
+            margin-right: 20px;
+            color: #333;
+        }
+
+        .auth-container .radio-label {
+            margin-left: 5px;
+        }
+
+        .auth-container .explanation {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 0.5rem;
+            text-align: left;
+        }
+
+        .auth-container button {
+            width: 100%;
+            padding: 10px;
+            background: #667eea;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
             cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .auth-container button:hover {
+            background: #764ba2;
+        }
+
+        .auth-container .links {
+            margin-top: 1rem;
+        }
+
+        .auth-container .links a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin: 0 10px;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .auth-container .links a:hover {
+            color: #764ba2;
+        }
+
+        .auth-container .form-container {
+            display: none;
+        }
+
+        .auth-container .form-container.active {
+            display: block;
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col">
+<body class="bg-gray-100 h-screen flex flex-col font-['Inter']">
+    <span id="typesaved" style="display: none;">{{type}}</span>
+    <!-- Header -->
     <header class="bg-white shadow-md p-4">
         <div class="max-w-4xl mx-auto flex flex-col sm:flex-row justify-between items-center">
-            <h1 class="text-2xl font-semibold text-gray-800 mb-4 sm:mb-0">💬 Chat with Grandpa</h1>
+            <h1 class="text-2xl font-semibold text-gray-800 mb-4 sm:mb-0">💬 Chat with Grandpa type= {{type}}</h1>
             <div class="flex items-center space-x-2 sm:space-x-4">
-                <button id="loginBtn" class="px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition duration-300 ease-in-out flex items-center text-sm">
-                    <i data-lucide="log-in" class="w-4 h-4 mr-2"></i> Login / Signup
+                {% if type == 1 %}
+                <button onclick="login()" class="px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition duration-300 ease-in-out flex items-center text-sm" data-tippy-content="Create a new account">
+                    <i data-feather="log-in" class="w-4 h-4 mr-2"></i> Login / Signup
                 </button>
-                <div id="userActions" class="hidden">
-                    <button id="documentsBtn" class="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition duration-300 ease-in-out">
+                {% endif %}
+                {% if type > 2 %}
+                <div id="chatDropdown" class="relative inline-block">
+                    <button id="chatsButton" class="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition duration-300 ease-in-out" data-tippy-content="Add documents">
                         <i data-lucide="folder" class="w-5 h-5"></i>
                     </button>
-                    <button id="logoutBtn" class="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition duration-300 ease-in-out">
-                        <i data-lucide="log-out" class="w-5 h-5"></i>
-                    </button>
-                    <button id="premiumBtn" class="px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition duration-300 ease-in-out flex items-center text-sm">
-                        <i data-lucide="star" class="w-4 h-4 mr-2"></i> Premium
-                    </button>
+                    <div id="dropdownContent" style="margin-top: 20px;width: 18rem;left: -100px;" class="hidden absolute left-0 mt-2 w-64 bg-white rounded-md shadow-lg z-10 p-4">
+                        <div class="flex">
+                            <input type="text" id="linkInput" placeholder="Add file link" class="flex-grow px-2 py-1 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <button id="addButton" class="bg-[rgb(59,130,246)] hover:bg-[rgb(59,130,246/0.8)] text-white px-2 py-1 rounded-r-md">
+                                <i data-lucide="plus" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                        <div id="linksList" class="mt-4 hidden">
+                            <h3 class="text-sm font-semibold mb-2">Added links:</h3>
+                            <ul id="links" class="text-sm"></ul>
+                        </div>
+                    </div>
                 </div>
+                <button id="logout" onclick="logout();" class="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition duration-300 ease-in-out" data-tippy-content="Logout">
+                    <i data-feather="log-out" class="w-5 h-5"></i>
+                </button>
+                <button onclick="premium()" class="px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition duration-300 ease-in-out flex items-center text-sm" data-tippy-content="Create a new account">
+                    <i data-feather="star" class="w-4 h-4 mr-2"></i> Premium
+                </button>
+                {% endif %}
+                <!--
+                
+                <button id="documents" class="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition duration-300 ease-in-out" data-tippy-content="Manage your documents">
+                    <i data-feather="folder" class="w-5 h-5"></i>
+                </button>
+                <button id="alert" class="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition duration-300 ease-in-out" data-tippy-content="You have a new update or messages">
+                    <i data-feather="bell" class="w-5 h-5"></i>
+                </button>
+                <button id="reports" class="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition duration-300 ease-in-out" data-tippy-content="Request report">
+                    <i data-feather="file-text" class="w-5 h-5"></i>
+                </button>
+                -->
             </div>
         </div>
     </header>
 
-    <div id="chat-section" class="flex-1 flex flex-col max-w-4xl mx-auto w-full bg-white shadow-lg rounded-lg overflow-hidden my-4">
-        <div id="chat-messages" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
-            <!-- Chat messages will be inserted here -->
+    <!-- Chat Section -->
+    <div style="padding: 0;" class="flex-1 flex flex-col max-w-4xl mx-auto w-full bg-white shadow-lg rounded-lg overflow-hidden my-4 px-4 sm:px-0">
+        <!-- Chat Messages -->
+        <div id="chat-box" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+            {% if type == 1 %}
+                <div class="flex justify-start">
+                    <div class="bg-gray-100 text-gray-800 p-3 rounded-2xl max-w-[80%] sm:max-w-[70%] shadow-md">
+                        <p class="text-sm sm:text-base">Hello, grandson! How can I help you today? 😊
+                            <br />
+                            This platphorm will alow you bla bla bla
+                            <br />
+                            You can try to use this system, but we suggesting to login first that will help us bla bla
+                        </p>
+                        <div class="text-xs text-gray-500 text-right mt-1">10:30 AM</div>
+                    </div>
+                </div>
+            {% endif %}
+            {% for obj in msgs|slice:":20" %}
+                {% if obj.if_user %}
+                    <div class="flex justify-end">
+                        <div class="bg-blue-500 text-white p-3 rounded-2xl max-w-[80%] sm:max-w-[70%] shadow-md">
+                            <p class="text-sm sm:text-base">{{obj.msg}}</p>
+                            <div class="text-xs text-blue-200 text-right mt-1">{{obj.create_date}}</div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="flex justify-start">
+                        <div class="bg-gray-100 text-gray-800 p-3 rounded-2xl max-w-[80%] sm:max-w-[70%] shadow-md">
+                            <p class="text-sm sm:text-base">{{obj.msg}}</p>
+                            <div class="text-xs text-gray-500 text-right mt-1">{{obj.create_date}}</div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+            {% if type > 2 and cou_doc == 0 %}
+                <div class="flex justify-start">
+                    <div class="bg-gray-100 text-gray-800 p-3 rounded-2xl max-w-[80%] sm:max-w-[70%] shadow-md">
+                        <p class="text-sm sm:text-base">Hello, grandson! Keep going.
+                            <br />
+                            The next suggestion is add your child documents, it will help make answer more relevant to your case.
+                        </p>
+                        <div class="text-xs text-gray-500 text-right mt-1">10:30 AM</div>
+                    </div>
+                </div>
+            {% endif %}
         </div>
-        <form id="chat-form" class="p-4 bg-gray-50 border-t flex items-center space-x-2">
+
+        <!-- Chat Input -->
+        <form id="chat-form" class="p-4 bg-gray-50 border-t flex items-center space-x-2" autocomplete="off">
+            {% csrf_token %}
             <input type="text" id="chat-input" class="flex-1 p-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent text-sm sm:text-base" placeholder="Type your message..." required>
-            <button type="submit" class="p-3 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition duration-300 ease-in-out">
-                <i data-lucide="send" class="w-5 h-5"></i>
+            <button type="submit" class="p-3 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition duration-300 ease-in-out" data-tippy-content="Send message">
+                <i id="sendicon" data-feather="send" class="w-5 h-5"></i>
             </button>
         </form>
     </div>
 
-    <!-- Auth Modal -->
-    <div id="authModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2 id="authTitle" class="text-2xl font-bold mb-4">Login</h2>
-            <form id="authForm">
-                <div id="nameField" class="mb-4 hidden">
-                    <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
-                    <input type="text" id="name" name="name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+    
+    <script>
+        $(document).ready(function() {
+            let chatBox = document.getElementById("chat-box");
+            chatBox.scrollTop = chatBox.scrollHeight;
+            feather.replace();
+            tippy('[data-tippy-content]');
+        });
+        document.getElementById("chat-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+            let inputField = document.getElementById("chat-input");
+            let message = inputField.value.trim();
+            if (message) {
+                let icon = document.getElementById("sendicon");
+                $('#chat-form button').attr('disabled', 'disabled');
+                icon.setAttribute("data-feather","square");
+                feather.replace();
+                let chatBox = document.getElementById("chat-box");
+                let timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                let userMessage = `
+                    <div class="flex justify-end">
+                        <div class="bg-blue-500 text-white p-3 rounded-2xl max-w-[80%] sm:max-w-[70%] shadow-md">
+                            <p class="text-sm sm:text-base">${message}</p>
+                            <div class="text-xs text-blue-200 text-right mt-1">${timestamp}</div>
+                        </div>
+                    </div>`;
+                chatBox.innerHTML += userMessage;
+                inputField.value = "";
+                chatBox.scrollTop = chatBox.scrollHeight;
+                $.ajax({
+                    url : '/sendmsg',
+                    type : 'POST',
+                    data : {
+                        'msg' : message,
+                        'tst' : timestamp,
+                        'type':$("#typesaved").text()
+                    },
+                    dataType:'json',
+                    success : function(data) {
+                        if(data.status=="limit1"){ 
+                            login(); 
+                            return false;
+                        }
+                        if(data.status=="limit2"){ 
+                            premium(); 
+                            return false;
+                        }
+                        let ans_timestamp = data.tst;
+                        let ans_Message = `
+                            <div class="flex justify-start">
+                                <div class="bg-gray-100 text-gray-800 p-3 rounded-2xl max-w-[80%] sm:max-w-[70%] shadow-md">
+                                    <p class="text-sm sm:text-base">${data.message}</p>
+                                    <div class="text-xs text-gray-500 text-right mt-1">${timestamp}</div>
+                                </div>
+                            </div>`;
+                        chatBox.innerHTML += ans_Message;
+                        chatBox.scrollTop = chatBox.scrollHeight;
+                        let icon = document.getElementById("sendicon");
+                        $('#chat-form button').removeAttr('disabled');
+                        icon.setAttribute("data-feather","send");
+                        feather.replace();
+                    }
+                });
+            }
+        });
+        function login(){
+            $("#auth").css("display","flex");
+        }
+        function logout(){
+            $.ajax({
+                    url : '/logout',
+                    type : 'POST',
+                    data : {},
+                    dataType:'json',
+                    success : function(data) {
+                        location.href = "/";
+                    }
+                });
+        }
+    </script>
+    
+    <!-- Auth-->
+     <div id="auth" {% if type == 2 %} style="display: flex;" {% endif %}>
+        <div id="authblack"></div>
+        <div class="auth-container">
+            <div id="login-form" class="form-container">
+                <h2>Welcome Back</h2>
+                <form onsubmit="return handleLogin(event)">
+                    <div class="input-group">
+                        <input type="email" id="login-email" required>
+                        <label for="login-email">Email</label>
+                    </div>
+                    <div class="input-group">
+                        <input type="password" id="login-password" required>
+                        <label for="login-password">Password</label>
+                    </div>
+                    <button type="submit">Sign In</button>
+                </form>
+                <div class="links">
+                    <a href="#" onclick="toggleForm('signup-form')">Create an account</a>
                 </div>
-                <div class="mb-4">
-                    <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                    <input type="email" id="email" name="email" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                </div>
-                <div class="mb-4">
-                    <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-                    <input type="password" id="password" name="password" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                </div>
-                <button type="submit" class="w-full bg-blue-500 text-white rounded-md py-2 px-4 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50">Submit</button>
-            </form>
-            <p class="mt-4 text-center">
-                <a href="#" id="toggleAuth" class="text-blue-500 hover:text-blue-700">Don't have an account? Sign Up</a>
-            </p>
-        </div>
-    </div>
+            </div>
 
-    <!-- Premium Modal -->
-    <div id="premiumModal" class="modal">
-        <div class="modal-content max-w-4xl">
-            <span class="close">&times;</span>
-            <h2 class="text-2xl font-bold mb-4">Choose Your Plan</h2>
-            <div class="grid gap-6 md:grid-cols-3">
-                <!-- Plan cards will be inserted here -->
+            <div id="signup-form" class="form-container active">
+                <h2>For a Better Experience please Create Account</h2>
+                <form onsubmit="return handleSignup(event)">
+                    <div class="input-group">
+                        <input type="text" id="name" required>
+                        <label for="name">Name</label>
+                    </div>
+                    <div class="input-group">
+                        <input type="email" id="signup-email" required>
+                        <label for="signup-email">Email</label>
+                    </div>
+                    <div class="input-group">
+                        <input type="password" id="signup-password" required>
+                        <label for="signup-password">Password</label>
+                    </div>
+                    <div class="input-group">
+                        <input type="password" id="confirm-password" required>
+                        <label for="confirm-password">Repeat Password</label>
+                    </div>
+                    <button type="submit">Sign Up</button>
+                </form>
+                <div class="links">
+                    <a href="#" onclick="toggleForm('login-form')">Already have an account? Log In</a>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
+        function toggleForm(formId) {
+            document.querySelectorAll('.form-container').forEach(form => {
+                form.classList.remove('active');
+            });
+            document.getElementById(formId).classList.add('active');
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            $.ajax({
+				url : '/login',
+				type : 'POST',
+				data : {
+					'email' : email,
+					'password' : password
+				},
+				dataType:'json',
+				success : function(data) {              
+					location.reload();
+				},
+                error: function(xhr) {
+                    location.reload();
+                }
+			});
+            return false;
+        }
+
+        function handleSignup(event) {
+            event.preventDefault();
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            
+            if (password !== confirmPassword) {
+                alert("Passwords don't match!");
+                return false;
+            }
+            
+            // For demonstration purposes, we'll just log to the console
+            $.ajax({
+				url : '/signup',
+				type : 'POST',
+				data : {
+					'name' : name,
+					'email' : email,
+					'password' : password
+				},
+				dataType:'json',
+				success : function(data) {              
+					location.reload();
+				},
+                error: function(xhr) {
+                    location.reload();
+                }
+			});
+            return false;
+        }
+        function premium(){
+            $("#planprem").css("display","flex");
+        }
+    </script>
+    <!--doc code-->
+    <script>
         // Initialize Lucide icons
         lucide.createIcons();
 
-        // Chat functionality
-        const chatForm = document.getElementById('chat-form');
-        const chatInput = document.getElementById('chat-input');
-        const chatMessages = document.getElementById('chat-messages');
+        // Get DOM elements
+        const chatDropdown = document.getElementById('chatDropdown');
+        const chatsButton = document.getElementById('chatsButton');
+        const dropdownContent = document.getElementById('dropdownContent');
+        const linkInput = document.getElementById('linkInput');
+        const addButton = document.getElementById('addButton');
+        const linksList = document.getElementById('linksList');
+        const links = document.getElementById('links');
 
-        chatForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const message = chatInput.value.trim();
-            if (message) {
-                addMessage(message, true);
-                chatInput.value = '';
-                // Simulate bot response
-                setTimeout(() => {
-                    addMessage("Thank you for your message. This is a placeholder response.", false);
-                }, 1000);
+        // Toggle dropdown
+        chatsButton.addEventListener('click', () => {
+            dropdownContent.classList.toggle('hidden');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!chatDropdown.contains(event.target)) {
+                dropdownContent.classList.add('hidden');
             }
         });
 
-        function addMessage(content, isUser) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `flex ${isUser ? 'justify-end' : 'justify-start'}`;
-            const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            messageDiv.innerHTML = `
-                <div class="p-3 rounded-2xl max-w-[80%] sm:max-w-[70%] shadow-md ${
-                    isUser ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-800'
-                }">
-                    <p class="text-sm sm:text-base">${content}</p>
-                    <div class="text-xs ${isUser ? 'text-blue-200' : 'text-gray-500'} text-right mt-1">
-                        ${timestamp}
-                    </div>
-                </div>
-            `;
-            chatMessages.appendChild(messageDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        // Auth Modal functionality
-        const authModal = document.getElementById('authModal');
-        const loginBtn = document.getElementById('loginBtn');
-        const closeButtons = document.getElementsByClassName('close');
-        const toggleAuth = document.getElementById('toggleAuth');
-        const authTitle = document.getElementById('authTitle');
-        const nameField = document.getElementById('nameField');
-        const authForm = document.getElementById('authForm');
-        let isLogin = true;
-
-        loginBtn.onclick = function() {
-            authModal.style.display = "block";
-        }
-
-        for (let closeButton of closeButtons) {
-            closeButton.onclick = function() {
-                authModal.style.display = "none";
-                premiumModal.style.display = "none";
+        // Add link function
+        function addLink() {
+            const link = linkInput.value.trim();
+            if (link) {
+                const li = document.createElement('li');
+                li.textContent = link;
+                li.className = 'truncate';
+                links.appendChild(li);
+                linkInput.value = '';
+                linksList.classList.remove('hidden');
+                $.ajax({
+                    url : '/adddoc',
+                    type : 'POST',
+                    data : {
+                        'link' : link
+                    },
+                    dataType:'json'
+                });
             }
+            linkInput.focus();
         }
 
-        window.onclick = function(event) {
-            if (event.target == authModal) {
-                authModal.style.display = "none";
+        // Add link on button click
+        addButton.addEventListener('click', addLink);
+
+        // Add link on Enter key press
+        linkInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                addLink();
             }
-            if (event.target == premiumModal) {
-                premiumModal.style.display = "none";
-            }
-        }
-
-        toggleAuth.onclick = function(e) {
-            e.preventDefault();
-            isLogin = !isLogin;
-            authTitle.textContent = isLogin ? "Login" : "Sign Up";
-            nameField.style.display = isLogin ? "none" : "block";
-            toggleAuth.textContent = isLogin ? "Don't have an account? Sign Up" : "Already have an account? Login";
-        }
-
-        authForm.onsubmit = function(e) {
-            e.preventDefault();
-            // Here you would typically send the form data to your server
-            console.log("Form submitted:", isLogin ? "Login" : "Sign Up");
-            authModal.style.display = "none";
-            loginBtn.style.display = "none";
-            document.getElementById('userActions').style.display = "flex";
-        }
-
-        // Premium Modal functionality
-        const premiumModal = document.getElementById('premiumModal');
-        const premiumBtn = document.getElementById('premiumBtn');
-        const plansContainer = premiumModal.querySelector('.grid');
-
-        premiumBtn.onclick = function() {
-            premiumModal.style.display = "block";
-        }
-
-        const plans = [
-            {
-                name: 'Free Trial',
-                description: 'Try the tools with a few credits per week that will allow you to ask basic questions',
-                price: 'Free',
-                features: ['Basic questions', 'Limited credits per week'],
-                recommended: false,
-            },
-            {
-                name: 'Premium',
-                description: 'Unlimited messages, reports, real-time monitoring, and AI personalization for your child',
-                price: '$50',
-                interval: '/month',
-                features: [
-                    'Unlimited messages',
-                    'Personalized reports',
-                    'Real-time situation monitoring',
-                    'AI personalization for your child',
-                ],
-                recommended: true,
-            },
-            {
-                name: 'Personal Care',
-                description: 'All Premium features plus personal review by top doctors and customized AI responses',
-                price: '$200',
-                interval: '/month',
-                features: [
-                    'All Premium features',
-                    'Personal review by top doctors',
-                    'Customized AI responses',
-                    'Alarm system based on your questions',
-                ],
-                recommended: false,
-            },
-        ];
-
-        plans.forEach(plan => {
-            const planCard = document.createElement('div');
-            planCard.className = `bg-white p-6 rounded-lg shadow-md ${plan.recommended ? 'border-2 border-blue-500' : ''}`;
-            planCard.innerHTML = `
-                <h3 class="text-xl font-bold mb-2">${plan.name}</h3>
-                <p class="text-gray-600 mb-4">${plan.description}</p>
-                <p class="text-3xl font-bold mb-4">
-                    ${plan.price}
-                    ${plan.interval ? `<span class="text-sm font-normal">${plan.interval}</span>` : ''}
-                </p>
-                <ul class="mb-6">
-                    ${plan.features.map(feature => `
-                        <li class="flex items-center mb-2">
-                            <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            ${feature}
-                        </li>
-                    `).join('')}
-                </ul>
-                <button class="w-full py-2 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-300">
-                    ${plan.recommended ? 'Recommended' : 'Select Plan'}
-                </button>
-            `;
-            plansContainer.appendChild(planCard);
         });
-
-        // Logout functionality
-        const logoutBtn = document.getElementById('logoutBtn');
-        logoutBtn.onclick = function() {
-            // Here you would typically send a logout request to your server
-            console.log("Logged out");
-            document.getElementById('userActions').style.display = "none";
-            loginBtn.style.display = "inline-flex";
-        }
-
-        // Documents dropdown functionality
-        const documentsBtn = document.getElementById('documentsBtn');
-        documentsBtn.onclick = function() {
-            // Here you would typically open a dropdown or modal for document management
-            console.log("Documents button clicked");
-        }
     </script>
+    <style>
+        #premium {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10000;
+            background-color: #f7f5f5;
+            border-radius: 10px;
+            box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+            padding: 2rem;
+            width: 90%;
+            text-align: center;
+        }
+        #premium h2 {
+            text-align: center;
+            font-size:26px;
+            margin-bottom: 30px;
+        }
+        #premium .plans {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+        #premium .plan {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 300px;
+            display: flex;
+            flex-direction: column;
+        }
+        #premium .plan.recommended {
+            border: 2px solid #0070f3;
+            box-shadow: 0 4px 6px rgba(0, 112, 243, 0.2);
+        }
+        #premium .plan-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        #premium .plan-name {
+            font-size: 24px;
+            font-weight: bold;
+            float: left;
+            margin: 0 auto;
+        }
+        #premium .plan-icon {
+            font-size: 24px;
+        }
+        #premium .plan-price {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        #premium .plan-interval {
+            font-size: 16px;
+            color: #666;
+        }
+        #premium .plan-description {
+            margin-bottom: 20px;
+            color: #666;
+        }
+        #premium .plan-features {
+            list-style-type: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+            flex-grow: 1;
+        }
+        #premium .plan-features li {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        #premium .plan-features li::before {
+            content: "✓";
+            color: #0070f3;
+            margin-right: 10px;
+        }
+        #premium .plan-button {
+            background-color: #0070f3;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #premium .plan-button:hover {
+            background-color: #0056b3;
+        }
+        #premium .plan-button.outline {
+            background-color: transparent;
+            color: #0070f3;
+            border: 1px solid #0070f3;
+        }
+        #premium .plan-button.outline:hover {
+            background-color: #0070f3;
+            color: #fff;
+        }
+        @media (max-width: 768px) {
+            #premium .plans {
+                flex-direction: column;
+                align-items: center;
+            }
+            #premium .plan {
+                width: 100%;
+                max-width: 350px;
+            }
+        }
+    </style>
+    <div id="planprem" {% if type == 4 %} style="display: block;"{% endif %}>
+        <div id="planpremblack"></div>
+        <div id="premium">
+            <h2>Choose Your Plan</h2>
+            <div class="plans">
+                <div class="plan">
+                    <div class="plan-header">
+                        <span class="plan-name">Free Trial</span>
+                        <span class="plan-icon">⚠️</span>
+                    </div>
+                    <p class="plan-description">Try the tools with a few credits per week that will allow you to ask basic questions</p>
+                    <div class="plan-price">Free</div>
+                    <ul class="plan-features">
+                        <li>Basic questions</li>
+                        <li>Limited credits per week</li>
+                    </ul>
+                    <button class="plan-button outline">Select Plan</button>
+                </div>
+                <div class="plan recommended">
+                    <div class="plan-header">
+                        <span class="plan-name">Premium</span>
+                        <span class="plan-icon">⚡</span>
+                    </div>
+                    <p class="plan-description">Unlimited messages, reports, real-time monitoring, and AI personalization for your child</p>
+                    <div class="plan-price">$50 <span class="plan-interval">/month</span></div>
+                    <ul class="plan-features">
+                        <li>Unlimited messages</li>
+                        <li>Personalized reports</li>
+                        <li>Real-time situation monitoring</li>
+                        <li>AI personalization for your child</li>
+                    </ul>
+                    <button class="plan-button">Recommended</button>
+                </div>
+                <div class="plan">
+                    <div class="plan-header">
+                        <span class="plan-name">Personal Care</span>
+                        <span class="plan-icon">✅</span>
+                    </div>
+                    <p class="plan-description">All Premium features plus personal review by top doctors and customized AI responses</p>
+                    <div class="plan-price">$200 <span class="plan-interval">/ month</span></div>
+                    <ul class="plan-features">
+                        <li>All Premium features</li>
+                        <li>Personal review by top doctors</li>
+                        <li>Customized AI responses</li>
+                        <li>Alarm system based on your questions</li>
+                    </ul>
+                    <button class="plan-button outline">Select Plan</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
-
