@@ -23,6 +23,7 @@ urlpatterns = [
     path("signup",views.signup),
     path("login",views.logindef),
     path("logout",views.logoutdef),
+    path("adddoc",views.adddoc),
     path("sendmsg",views.sendmsg),
     path("", views.home)
 ]
