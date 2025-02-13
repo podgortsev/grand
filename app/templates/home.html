@@ -14,7 +14,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
 
-        #auth{
+        #auth,#planprem{
             display: none;
             position: fixed;       /* Fixes the position of the popup to the viewport */
             top: 0;
@@ -26,7 +26,7 @@
             background-color: rgba(0, 0, 0, 0.5);  /* Semi-transparent black background */
             z-index: 9999; 
         }
-        #authblack{
+        #authblack,#planpremblack{
             position: absolute;   /* Positions the overlay behind the content */
             top: 0;
             left: 0;
@@ -463,7 +463,7 @@
             return false;
         }
         function premium(){
-            alert("here the premium logic");
+            $("#planprem").css("display","flex");
         }
     </script>
     <!--doc code-->
@@ -524,8 +524,170 @@
             }
         });
     </script>
-    {% if type == 4 %}
-        <script> alert("premium logic");</script>
-    {% endif %}
+    <style>
+        #premium {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10000;
+            background-color: #f7f5f5;
+            border-radius: 10px;
+            box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+            padding: 2rem;
+            width: 90%;
+            text-align: center;
+        }
+        #premium h2 {
+            text-align: center;
+            font-size:26px;
+            margin-bottom: 30px;
+        }
+        #premium .plans {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+        #premium .plan {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 300px;
+            display: flex;
+            flex-direction: column;
+        }
+        #premium .plan.recommended {
+            border: 2px solid #0070f3;
+            box-shadow: 0 4px 6px rgba(0, 112, 243, 0.2);
+        }
+        #premium .plan-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        #premium .plan-name {
+            font-size: 24px;
+            font-weight: bold;
+            float: left;
+            margin: 0 auto;
+        }
+        #premium .plan-icon {
+            font-size: 24px;
+        }
+        #premium .plan-price {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        #premium .plan-interval {
+            font-size: 16px;
+            color: #666;
+        }
+        #premium .plan-description {
+            margin-bottom: 20px;
+            color: #666;
+        }
+        #premium .plan-features {
+            list-style-type: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+            flex-grow: 1;
+        }
+        #premium .plan-features li {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        #premium .plan-features li::before {
+            content: "✓";
+            color: #0070f3;
+            margin-right: 10px;
+        }
+        #premium .plan-button {
+            background-color: #0070f3;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #premium .plan-button:hover {
+            background-color: #0056b3;
+        }
+        #premium .plan-button.outline {
+            background-color: transparent;
+            color: #0070f3;
+            border: 1px solid #0070f3;
+        }
+        #premium .plan-button.outline:hover {
+            background-color: #0070f3;
+            color: #fff;
+        }
+        @media (max-width: 768px) {
+            #premium .plans {
+                flex-direction: column;
+                align-items: center;
+            }
+            #premium .plan {
+                width: 100%;
+                max-width: 350px;
+            }
+        }
+    </style>
+    <div id="planprem" {% if type == 4 %} style="display: block;"{% endif %}>
+        <div id="planpremblack"></div>
+        <div id="premium">
+            <h2>Choose Your Plan</h2>
+            <div class="plans">
+                <div class="plan">
+                    <div class="plan-header">
+                        <span class="plan-name">Free Trial</span>
+                        <span class="plan-icon">⚠️</span>
+                    </div>
+                    <p class="plan-description">Try the tools with a few credits per week that will allow you to ask basic questions</p>
+                    <div class="plan-price">Free</div>
+                    <ul class="plan-features">
+                        <li>Basic questions</li>
+                        <li>Limited credits per week</li>
+                    </ul>
+                    <button class="plan-button outline">Select Plan</button>
+                </div>
+                <div class="plan recommended">
+                    <div class="plan-header">
+                        <span class="plan-name">Premium</span>
+                        <span class="plan-icon">⚡</span>
+                    </div>
+                    <p class="plan-description">Unlimited messages, reports, real-time monitoring, and AI personalization for your child</p>
+                    <div class="plan-price">$50 <span class="plan-interval">/month</span></div>
+                    <ul class="plan-features">
+                        <li>Unlimited messages</li>
+                        <li>Personalized reports</li>
+                        <li>Real-time situation monitoring</li>
+                        <li>AI personalization for your child</li>
+                    </ul>
+                    <button class="plan-button">Recommended</button>
+                </div>
+                <div class="plan">
+                    <div class="plan-header">
+                        <span class="plan-name">Personal Care</span>
+                        <span class="plan-icon">✅</span>
+                    </div>
+                    <p class="plan-description">All Premium features plus personal review by top doctors and customized AI responses</p>
+                    <div class="plan-price">$200 <span class="plan-interval">/ month</span></div>
+                    <ul class="plan-features">
+                        <li>All Premium features</li>
+                        <li>Personal review by top doctors</li>
+                        <li>Customized AI responses</li>
+                        <li>Alarm system based on your questions</li>
+                    </ul>
+                    <button class="plan-button outline">Select Plan</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
