@@ -20,9 +20,13 @@ MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB
 def index(request):
     if 'user_logged_in' not in request.COOKIES:
         user_temp_id = ''.join(random.choices(string.ascii_letters + string.digits, k=25))
-        response = HttpResponse("my reponse")
+        context_data = {
+            'msgs': [],
+            "agreed": 0
+        }
+        response = render(request, 'index.html', context_data={})
         response.set_cookie('user_logged_in', user_temp_id, max_age=2147483647)
-    
+        return response
     user_status = request.COOKIES.get('user_logged_in')
     agreed = 1
     if term_agree.objects.filter(user_id=user_status).count()==0:
@@ -35,8 +39,7 @@ def index(request):
         "agreed": agreed
     }
     
-    response = render(request, 'index.html', context_data) 
-    response.set_cookie('user_logged_in', user_temp_id, max_age=2147483647)   
+    response = render(request, 'index.html', context_data)    
     return response
 
 def contacts(request):
