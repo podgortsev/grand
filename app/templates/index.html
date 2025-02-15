@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with Grandpa</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <style>
+        /* Reset default styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Hide the modal when checkbox is checked */
+        #terms-agreement:checked ~ .modal-overlay {
+            display: none;
+        }
+
+        /* Modal overlay */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 1rem;
+        }
+
+        /* Modal content */
+        .modal-content {
+            background-color: white;
+            border-radius: 8px;
+            max-width: 28rem;
+            width: 100%;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        /* Modal header */
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        /* Modal body */
+        .modal-body {
+            padding: 1.5rem;
+            color: #4b5563;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        .modal-body p {
+            margin-bottom: 1rem;
+        }
+
+        .modal-body a {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .modal-body a:hover {
+            text-decoration: underline;
+        }
+
+        /* Modal footer */
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        /* Agree button styled as label */
+        .agree-button {
+            display: block;
+            width: 100%;
+            padding: 0.75rem 1.25rem;
+            background-color: #2563eb;
+            color: white;
+            border-radius: 6px;
+            font-weight: 500;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .agree-button:hover {
+            background-color: #1d4ed8;
+        }
+
+        /* Hide checkbox */
+        #terms-agreement {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+    </style>
+    <style>
+            /* Customize the scrollbar for webkit browsers (Chrome, Safari, Edge) */
+        .messages::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .messages::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 20px;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+        }
+
+        .messages::-webkit-scrollbar-thumb:hover {
+            background-color: #94a3b8;
+        }
+
+        /* For Firefox */
+        .messages {
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 transparent;
+        }
+
+        /* Ensure smooth scrolling */
+        .messages {
+            scroll-behavior: smooth;
+        }
+
+        /* Add hover effect to show scrollbar */
+        .messages:hover::-webkit-scrollbar-thumb {
+            background-color: #94a3b8;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: #f8f9fa;
+        }
+
+        .app {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            background: #f5f5f5;
+            border-right: 1px solid #e2e8f0;
+            transition: width 0.3s;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .sidebar.collapsed {
+            width: 60px;
+        }
+
+        .sidebar.collapsed .nav-text {
+            display: none;
+        }
+
+        .sidebar.expanded {
+            width: 240px;
+        }
+
+        .toggle-btn {
+            position: absolute;
+			right: 0;
+			top: 0;
+			width: 40px;
+			height: 48px;
+			border: none;
+			background: none;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: #1a1a1a;
+        }
+
+        .toggle-btn:hover {
+            background: #e2e8f0;
+        }
+
+        .sidebar-header {
+            padding: 1rem;
+            padding-right: 3rem; /* Make room for toggle button */
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-item {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            color: #1a1a1a;
+            text-decoration: none;
+        }
+
+        .nav-item:hover {
+            background: #e2e8f0;
+        }
+
+        .nav-text {
+            margin-left: 12px;
+            white-space: nowrap;
+        }
+        .nav-item i {
+            min-width: 20px; /* Ensure icons are aligned */
+        }
+
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+        }
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;			
+			max-width: 48rem;
+			margin: 0 auto;
+			width: 100%;
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            max-width: 100%;
+        }
+
+        .message-content {
+            background: #f1f5f9;
+            padding: 0.75rem;
+            padding-bottom: 1.5rem; /* Make room for timestamp */
+            border-radius: 0.5rem;
+            display: inline-block;
+            max-width: 80%;
+            position: relative;
+            word-wrap: break-word;
+			min-width: 160px;
+        }
+
+        .message.user .message-content {
+            background: #2563eb;
+            color: white;
+            float: right;
+        }
+
+        .message::after {
+            content: '';
+            display: table;
+            clear: both;
+        }
+
+        .timestamp {
+            font-size: 0.75rem;
+            color: #64748b;
+            position: absolute;
+            bottom: 4px;
+            right: 8px;
+            padding: 2px;
+            background: transparent;
+            line-height: 1;
+        }
+
+        .message.user .timestamp {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .input-container {
+            padding: 1rem;
+            border-top: 1px solid #e2e8f0;
+            position: relative;			
+			max-width: 48rem;
+			margin: 0 auto;
+			width: 100%;
+        }
+
+        .message-input {
+            width: 100%;
+            padding: 0.75rem;
+            padding-right: 100px;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            resize: none;
+            min-height: 45px;
+            max-height: 150px;
+            outline: none;
+        }
+
+        .message-input:focus {
+            border-color: #2563eb;
+        }
+
+        .input-actions {
+            position: absolute;
+            right: 24px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            color: #64748b;
+            border-radius: 0.25rem;
+        }
+
+        .action-button:hover {
+            color: #2563eb;
+            background: #f1f5f9;
+        }
+
+        .attachments-container {
+            border-top: 1px solid #e2e8f0;
+            padding: 1rem;
+            display: none;
+            max-height: 200px;
+            overflow-y: auto;			
+			max-width: 48rem;
+			margin: 0 auto;
+			width: 100%;
+        }
+
+        .attachments-container.visible {
+            display: block;
+        }
+
+        .attachment {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            background: #f8fafc;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .attachment:last-child {
+            margin-bottom: 0;
+        }
+
+        .attachment-icon {
+            margin-right: 0.75rem;
+            color: #64748b;
+        }
+
+        .attachment-info {
+            flex: 1;
+        }
+
+        .attachment-name {
+            font-size: 0.875rem;
+            color: #1e293b;
+        }
+
+        .attachment-size {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        .attachment-remove {
+            background: none;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 0.25rem;
+        }
+
+        .attachment-remove:hover {
+            background: #fee2e2;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <nav class="sidebar expanded" id="sidebar">
+            <div class="sidebar-header">
+                <i data-lucide="message-circle"></i>
+                <span class="nav-text">Ask Grandpa {{agreed}}</span>
+                <button class="toggle-btn" id="toggleSidebar">
+                    <i data-lucide="chevron-left"></i>
+                </button>
+            </div>
+            <a href="#" class="nav-item">
+                <i data-lucide="bot"></i>
+                <span class="nav-text">Assistant</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i data-lucide="file-text"></i>
+                <span class="nav-text">Documents</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i data-lucide="users"></i>
+                <span class="nav-text">Contacts</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i data-lucide="settings"></i>
+                <span class="nav-text">Settings</span>
+            </a>
+        </nav>
+
+        <main class="chat-container">
+            <div class="messages" id="messages">
+                {% if msgs|length == 0 %}
+                    <div class="message">
+                        <div class="message-content">
+                            Hi I am a first message.
+                            <span class="timestamp">{{obj.create_date}}</span>
+                        </div>
+                    </div>
+                {% endif %}
+                {% for obj in msgs|slice:":20" %}
+                    {% if obj.if_user %}
+                    <div class="message user">
+                        <div class="message-content">
+                            {{obj.msg}}
+                            <span class="timestamp">{{obj.create_date}}</span>
+                        </div>
+                    </div>
+                    {% else %}
+                        <div class="message">
+                            <div class="message-content">
+                                {{obj.msg}}
+                                <span class="timestamp">{{obj.create_date}}</span>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <div class="attachments-container" id="attachmentsContainer">
+                <h3 style="margin-bottom: 0.75rem; color: #64748b;">Attachments</h3>
+                <div id="attachmentsList"></div>
+            </div>
+            <div class="input-container">
+                <textarea 
+                    class="message-input" 
+                    placeholder="Type a message..."
+                    id="messageInput"
+                ></textarea>
+                <div class="input-actions">
+                    <button class="action-button" title="Attach file">
+                        <i data-lucide="paperclip"></i>
+                    </button>
+                    <button class="action-button" title="Send message" onclick="messageInputbtnf();">
+                        <i data-lucide="send" id="sendicon"></i>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+		var istogg = 0;
+
+        // Updated sidebar toggle functionality
+        const sidebar = document.getElementById('sidebar');
+        const toggleBtn = document.getElementById('toggleSidebar');
+        const toggleIcon = toggleBtn.querySelector('i');
+        
+        toggleBtn.addEventListener('click', () => {
+            const isCollapsing = sidebar.classList.contains('expanded');
+            sidebar.classList.toggle('collapsed');
+            sidebar.classList.toggle('expanded');
+            
+			if(istogg==0){
+				istogg = 1;
+				toggleBtn.innerHTML = "<i data-lucide='chevron-right'></i>";
+			}
+			else{
+				istogg = 0;
+				toggleBtn.innerHTML = "<i data-lucide='chevron-left'></i>";
+			}
+            lucide.createIcons();
+        });
+
+        // Auto-resize textarea
+        const messageInput = document.getElementById('messageInput');
+        
+        messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 150) + 'px';
+        });
+
+        // Send message on Enter (Shift+Enter for new line)
+        messageInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                if (this.value.trim()) {
+                    sendMessage(this.value);
+                    this.value = '';
+                    this.style.height = 'auto';
+                }
+            }
+        });
+        // Send message on btn
+        function messageInputbtnf() { 
+			const messageInput = document.getElementById('messageInput');
+			if (messageInput.value.trim()) {
+				sendMessage(messageInput.value);
+				messageInput.value = '';
+				messageInput.style.height = 'auto';
+			}
+        };
+
+        var thinking = 0;
+        function sendMessage(content) {
+            if (thinking==1) return;
+            thinking = 1;
+	
+            let icon = document.getElementById("sendicon");
+            icon.setAttribute("data-lucide","square");
+            lucide.createIcons();
+            const messages = document.getElementById('messages');
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message user';
+            messageDiv.innerHTML = `
+                <div class="message-content">
+                    ${content}
+                    <span class="timestamp">${time}</span>
+                </div>
+            `;
+            
+            messages.appendChild(messageDiv);
+            messages.scrollTop = messages.scrollHeight;
+
+            const fileInput = document.querySelector('input[type="file"]'); 
+    
+            const formData = new FormData();
+            if (document.getElementById("fileInput")){ 
+                for (let i = 0; i < fileInput.files.length; i++) {
+                    formData.append("files[]", fileInput.files[i]);  // Append multiple files
+                }
+            }
+            formData.append("msg", content);
+            
+            $.ajax({
+                url : '/sendmsg',
+                type : 'POST',
+                data : formData,processData: false,  // Prevent jQuery from processing FormData
+                contentType: false,  // Let browser set the correct content type
+                dataType: 'json',
+                success : function(data) {
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = 'message';
+                    messageDiv.innerHTML = `
+                        <div class="message-content">
+                            ${data.message}
+                            <span class="timestamp">${data.tst}</span>
+                        </div>
+                    `;
+                    messages.appendChild(messageDiv);
+                    messages.scrollTop = messages.scrollHeight;
+
+                    let icon = document.getElementById("sendicon");
+                    icon.setAttribute("data-lucide","send");
+                    lucide.createIcons();
+                    thinking = 0;
+                    if(document.getElementsByClassName("attachment-remove").length>0){
+                        const attachments = document.getElementsByClassName("attachment");
+                        // Convert HTMLCollection to an array and loop through to remove each element
+                        Array.from(attachments).forEach(attachment => {
+                            attachment.remove();
+                        });
+                        document.querySelector('input[type="file"]').value = '';
+                        if (document.getElementById('attachmentsList').children.length === 0) {
+                            document.getElementById('attachmentsContainer').classList.remove('visible');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX Error: ", error);  // Log the error to the console for debugging
+                    alert("An error occurred while sending the message. Please try again later.");            
+                }
+            });
+        }
+
+        // File attachment handling
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.multiple = true;
+        fileInput.id="fileInput";
+        fileInput.style.display = 'none';
+        document.body.appendChild(fileInput);
+
+        const attachmentsContainer = document.getElementById('attachmentsContainer');
+        const attachmentsList = document.getElementById('attachmentsList');
+
+        document.querySelector('button[title="Attach file"]').addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files.length > 0) {
+                attachmentsContainer.classList.add('visible');
+                
+                Array.from(this.files).forEach(file => {
+                    const attachment = document.createElement('div');
+                    attachment.className = 'attachment';
+                    
+                    const fileSize = (file.size / 1024).toFixed(1) + ' KB';
+                    
+                    attachment.innerHTML = `
+                        <i class="attachment-icon" data-lucide="file"></i>
+                        <div class="attachment-info">
+                            <div class="attachment-name">${file.name}</div>
+                            <div class="attachment-size">${fileSize}</div>
+                        </div>
+                        <button class="attachment-remove" title="Remove file">
+                            <i data-lucide="x"></i>
+                        </button>
+                    `;
+                    
+                    attachmentsList.appendChild(attachment);
+                    lucide.createIcons();
+
+                    attachment.querySelector('.attachment-remove').addEventListener('click', () => {
+                        attachment.remove();
+						fileInput.value = '';
+                        if (attachmentsList.children.length === 0) {
+                            attachmentsContainer.classList.remove('visible');
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+    {% if agreed == 0 %}
+    <div class="modal-overlay">
+        <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modal-title">Terms of Service</h2>
+            </div>
+            <div class="modal-body">
+                <p>
+                    Before continuing, you must read and agree to our
+                    <a href="/terms" target="_blank">Terms of Service</a>.
+                    By clicking "I Agree", you acknowledge that you have read and understood our terms.
+                </p>
+                <p>This action cannot be undone and is required to proceed.</p>
+            </div>
+            <div class="modal-footer">
+                <label for="terms-agreement" class="agree-button" onclick="agreebtn();">I Agree</label>
+            </div>
+        </div>
+    </div>
+    <script>
+        function agreebtn(){
+            $.ajax({
+                url : '/agreebtn',
+                type : 'GET',
+                data : {},
+                success : function(data) {
+                    location.reload();
+                }                
+            });
+        }
+    </script>
+    {% endif %}
+</body>
+</html>
