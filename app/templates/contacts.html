@@ -9,7 +9,7 @@
     <style>
         @media screen and (max-width: 768px) {
             #toggleSidebar{display: none;}
-            .sidebar-header{padding-right:1rem}
+            .sidebar-header{padding-right:1rem !important}
             #sidebar{
                 position: fixed;
                 top: 0;
@@ -17,6 +17,7 @@
                 width: 100%;
                 display: flex;
                 z-index: 100000;
+                max-width: 100%;
             }
             #sidebar span{display: none;}
             .nav-item{padding: 0.75rem 0.9rem;}
