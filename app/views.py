@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
-from app.models import mod_msgs, user_files
+from app.models import mod_msgs, user_files, term_agree
 import openai
 from django.contrib.auth import logout
 import random
@@ -22,11 +22,11 @@ def index(request):
         user_temp_id = ''.join(random.choices(string.ascii_letters + string.digits, k=25))
         response.set_cookie('user_logged_in', user_temp_id, max_age=2147483647)
     
+    user_status = request.COOKIES.get('user_logged_in')
     agreed = 1
-    if 'user_agreed' not in request.COOKIES:
+    if term_agree.objects.filter(user_id=user_status).count()==0:
         agreed = 0
 
-    user_status = request.COOKIES.get('user_logged_in')
     msgs = mod_msgs.objects.filter(user_id=user_status)
     
     context_data = {
@@ -94,8 +94,8 @@ def privacypolicy(request):
     return response
 
 def agreebtn(request):
-    response = HttpResponse("Cookie Set")
-    response.set_cookie('user_agreed', 1, max_age=2147483647)
+    t = term_agree()
+    t.save()
     return JsonResponse({}, status=200)
 
 
