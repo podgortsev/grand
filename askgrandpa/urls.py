@@ -28,6 +28,7 @@ urlpatterns = [
     #AJAX
     path("sendmsg",views.sendmsg),
     path("agreebtn",views.agreebtn),
+    path("sendcontact",views.sendcontact),
 
 
     path("terms",views.terms),
