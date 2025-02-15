@@ -17,7 +17,7 @@ class term_agree(models.Model):
     user_id = models.CharField(max_length=255)
     create_date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
-class mod_contacts(models.Model):
+class m_contacts(models.Model):
     user_id = models.CharField(max_length=255)
     create_date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     name = models.CharField(max_length=255)

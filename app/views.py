@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
-from app.models import m_msgs, u_files, term_agree, mod_contacts
+from app.models import m_msgs, u_files, term_agree, m_contacts
 import openai
 from django.contrib.auth import logout
 import random
@@ -58,7 +58,7 @@ def contacts(request):
     if term_agree.objects.filter(user_id=user_status).count()==0:
         agreed = 0
 
-    contas = mod_contacts.objects.filter(user_id=user_status)
+    contas = m_contacts.objects.filter(user_id=user_status)
     
     context_data = {
         'contas': contas,
@@ -79,7 +79,7 @@ def docs(request):
     if term_agree.objects.filter(user_id=user_status).count()==0:
         agreed = 0
 
-    docums = u_files.objects.filter(user_id=user_status)
+    docums = user_files.objects.filter(user_id=user_status)
     
     context_data = {
         'docums': docums,
@@ -129,7 +129,7 @@ def askopenai(msg):
 
 def savefiles(uploaded_file, uid):
     fname = ''.join(random.choices(string.ascii_letters + string.digits, k=25)) + "_" + uploaded_file.name
-    m = u_files()
+    m = user_files()
     m.user_id = uid
     m.doc_name = fname
     m.doc_url = ""  # Placeholder for actual file URL
@@ -156,7 +156,7 @@ def sendcontact(request):
     if request.method != "POST":
         return JsonResponse({"error": "Invalid request method"}, status=400)
 
-    m = mod_contacts()
+    m = m_contacts()
     m.user_id = request.COOKIES['user_logged_in']
     m.name = request.POST.get("name")
     m.email = request.POST.get("email")
@@ -217,7 +217,7 @@ def logoutdef(request):
 @csrf_exempt 
 def adddoc(request):
     link = request.POST["link"]
-    u = u_files()
+    u = user_files()
     u.user_id = request.user.id
     u.doc = link
     u.save()

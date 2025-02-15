@@ -1,5 +1,5 @@
 from django.contrib import admin
-from app.models import m_msgs, u_files, term_agree, mod_contacts
+from app.models import m_msgs, u_files, term_agree, m_contacts
 
 class admin_m_msgs(admin.ModelAdmin): 
     list_display = ('user_id','if_user', 'create_date', 'msg')
@@ -19,4 +19,4 @@ admin.site.register(term_agree,admin_term_agree)
 class admin_contacts(admin.ModelAdmin): 
     list_display = ('user_id','create_date','name','email','type','title')
 
-admin.site.register(mod_contacts,admin_contacts)
+admin.site.register(m_contacts,admin_contacts)
