@@ -588,6 +588,14 @@
                         <th>Type</th>
                         <th>Email</th>
                     </tr>
+                    {% for obj in contas %}
+                        <tr>
+                            <td>{{obj.name}}</td>
+                            <td>{{obj.title}}</td>
+                            <td>{{obj.type}}</td>
+                            <td>{{obj.email}}</td>
+                        </tr>
+                    {% endfor %}
                 </thead>
                 <tbody id="contactsList"></tbody>
             </table>
@@ -616,6 +624,26 @@
                     saveContacts();
                     displayContacts();
                     e.target.reset();
+                    $.ajax({
+                        url : '/sendcontact',
+                        type : 'POST',
+                        data : {
+                            "name":document.getElementById('name').value,
+                            "email":document.getElementById('email').value,
+                            "type":document.getElementById('type').value,
+                            "title":document.getElementById('title').value
+                        },
+                        processData: false,  // Prevent jQuery from processing FormData
+                        contentType: false,  // Let browser set the correct content type
+                        dataType: 'json',
+                        success : function(data) {
+                            
+                        },
+                        error: function(xhr, status, error) {
+                            console.error("AJAX Error: ", error);  // Log the error to the console for debugging
+                            alert("An error occurred while sending the contact. Please try again later.");            
+                        }
+                    });
                 }
 
                 function sortContacts(field) {
