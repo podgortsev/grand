@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat with Grandpa</title>
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <title>Chat with Grandpa contacts</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <style>
         @media screen and (max-width: 768px) {
@@ -17,7 +16,7 @@
                 display: flex;
                 z-index: 100000;
             }
-            #sidebar span:not(:first-child){display: none;}
+            #sidebar span{display: none;}
             .nav-item{padding: 0.75rem 0.9rem;}
             .app{
                 margin-top: 50px;
@@ -427,11 +426,11 @@
                     <i data-lucide="chevron-left"></i>
                 </button>
             </div>
-            <a href="/" class="nav-item" style="background-color: #94a3b8;">
+            <a href="/" class="nav-item">
                 <i data-lucide="bot"></i>
                 <span class="nav-text">Assistant</span>
             </a>
-            <a href="/docs" class="nav-item">
+            <a href="/docs" class="nav-item" style="background-color: #94a3b8;">
                 <i data-lucide="file-text"></i>
                 <span class="nav-text">Documents</span>
             </a>
@@ -446,52 +445,7 @@
         </nav>
 
         <main class="chat-container">
-            <div class="messages" id="messages">
-                {% if msgs|length == 0 %}
-                    <div class="message">
-                        <div class="message-content">
-                            Hi I am a first message.
-                            <span class="timestamp">{{obj.create_date}}</span>
-                        </div>
-                    </div>
-                {% endif %}
-                {% for obj in msgs|slice:":20" %}
-                    {% if obj.if_user %}
-                    <div class="message user">
-                        <div class="message-content">
-                            {{obj.msg}}
-                            <span class="timestamp">{{obj.create_date}}</span>
-                        </div>
-                    </div>
-                    {% else %}
-                        <div class="message">
-                            <div class="message-content">
-                                {{obj.msg}}
-                                <span class="timestamp">{{obj.create_date}}</span>
-                            </div>
-                        </div>
-                    {% endif %}
-                {% endfor %}
-            </div>
-            <div class="attachments-container" id="attachmentsContainer">
-                <h3 style="margin-bottom: 0.75rem; color: #64748b;">Attachments</h3>
-                <div id="attachmentsList"></div>
-            </div>
-            <div class="input-container">
-                <textarea 
-                    class="message-input" 
-                    placeholder="Type a message..."
-                    id="messageInput"
-                ></textarea>
-                <div class="input-actions">
-                    <button class="action-button" title="Attach file">
-                        <i data-lucide="paperclip"></i>
-                    </button>
-                    <button class="action-button" title="Send message" onclick="messageInputbtnf();">
-                        <i data-lucide="send" id="sendicon"></i>
-                    </button>
-                </div>
-            </div>
+            
         </main>
     </div>
 
@@ -519,159 +473,6 @@
 				toggleBtn.innerHTML = "<i data-lucide='chevron-left'></i>";
 			}
             lucide.createIcons();
-        });
-
-        // Auto-resize textarea
-        const messageInput = document.getElementById('messageInput');
-        
-        messageInput.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = Math.min(this.scrollHeight, 150) + 'px';
-        });
-
-        // Send message on Enter (Shift+Enter for new line)
-        messageInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                if (this.value.trim()) {
-                    sendMessage(this.value);
-                    this.value = '';
-                    this.style.height = 'auto';
-                }
-            }
-        });
-        // Send message on btn
-        function messageInputbtnf() { 
-			const messageInput = document.getElementById('messageInput');
-			if (messageInput.value.trim()) {
-				sendMessage(messageInput.value);
-				messageInput.value = '';
-				messageInput.style.height = 'auto';
-			}
-        };
-
-        var thinking = 0;
-        function sendMessage(content) {
-            if (thinking==1) return;
-            thinking = 1;
-	
-            let icon = document.getElementById("sendicon");
-            icon.setAttribute("data-lucide","square");
-            lucide.createIcons();
-            const messages = document.getElementById('messages');
-            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'message user';
-            messageDiv.innerHTML = `
-                <div class="message-content">
-                    ${content}
-                    <span class="timestamp">${time}</span>
-                </div>
-            `;
-            
-            messages.appendChild(messageDiv);
-            messages.scrollTop = messages.scrollHeight;
-
-            const fileInput = document.querySelector('input[type="file"]'); 
-    
-            const formData = new FormData();
-            if (document.getElementById("fileInput")){ 
-                for (let i = 0; i < fileInput.files.length; i++) {
-                    formData.append("files[]", fileInput.files[i]);  // Append multiple files
-                }
-            }
-            formData.append("msg", content);
-            
-            $.ajax({
-                url : '/sendmsg',
-                type : 'POST',
-                data : formData,processData: false,  // Prevent jQuery from processing FormData
-                contentType: false,  // Let browser set the correct content type
-                dataType: 'json',
-                success : function(data) {
-                    const messageDiv = document.createElement('div');
-                    messageDiv.className = 'message';
-                    messageDiv.innerHTML = `
-                        <div class="message-content">
-                            ${data.message}
-                            <span class="timestamp">${data.tst}</span>
-                        </div>
-                    `;
-                    messages.appendChild(messageDiv);
-                    messages.scrollTop = messages.scrollHeight;
-
-                    let icon = document.getElementById("sendicon");
-                    icon.setAttribute("data-lucide","send");
-                    lucide.createIcons();
-                    thinking = 0;
-                    if(document.getElementsByClassName("attachment-remove").length>0){
-                        const attachments = document.getElementsByClassName("attachment");
-                        // Convert HTMLCollection to an array and loop through to remove each element
-                        Array.from(attachments).forEach(attachment => {
-                            attachment.remove();
-                        });
-                        document.querySelector('input[type="file"]').value = '';
-                        if (document.getElementById('attachmentsList').children.length === 0) {
-                            document.getElementById('attachmentsContainer').classList.remove('visible');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error("AJAX Error: ", error);  // Log the error to the console for debugging
-                    alert("An error occurred while sending the message. Please try again later.");            
-                }
-            });
-        }
-
-        // File attachment handling
-        const fileInput = document.createElement('input');
-        fileInput.type = 'file';
-        fileInput.multiple = true;
-        fileInput.id="fileInput";
-        fileInput.style.display = 'none';
-        document.body.appendChild(fileInput);
-
-        const attachmentsContainer = document.getElementById('attachmentsContainer');
-        const attachmentsList = document.getElementById('attachmentsList');
-
-        document.querySelector('button[title="Attach file"]').addEventListener('click', () => {
-            fileInput.click();
-        });
-
-        fileInput.addEventListener('change', function() {
-            if (this.files && this.files.length > 0) {
-                attachmentsContainer.classList.add('visible');
-                
-                Array.from(this.files).forEach(file => {
-                    const attachment = document.createElement('div');
-                    attachment.className = 'attachment';
-                    
-                    const fileSize = (file.size / 1024).toFixed(1) + ' KB';
-                    
-                    attachment.innerHTML = `
-                        <i class="attachment-icon" data-lucide="file"></i>
-                        <div class="attachment-info">
-                            <div class="attachment-name">${file.name}</div>
-                            <div class="attachment-size">${fileSize}</div>
-                        </div>
-                        <button class="attachment-remove" title="Remove file">
-                            <i data-lucide="x"></i>
-                        </button>
-                    `;
-                    
-                    attachmentsList.appendChild(attachment);
-                    lucide.createIcons();
-
-                    attachment.querySelector('.attachment-remove').addEventListener('click', () => {
-                        attachment.remove();
-						fileInput.value = '';
-                        if (attachmentsList.children.length === 0) {
-                            attachmentsContainer.classList.remove('visible');
-                        }
-                    });
-                });
-            }
         });
     </script>
     {% if agreed == 0 %}

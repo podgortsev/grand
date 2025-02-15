@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat with Grandpa</title>
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <title>Chat with Grandpa contacts</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <style>
         @media screen and (max-width: 768px) {
@@ -17,7 +16,7 @@
                 display: flex;
                 z-index: 100000;
             }
-            #sidebar span:not(:first-child){display: none;}
+            #sidebar span{display: none;}
             .nav-item{padding: 0.75rem 0.9rem;}
             .app{
                 margin-top: 50px;
@@ -416,6 +415,109 @@
             background: #fee2e2;
         }
     </style>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .search-container {
+            margin: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            cursor: pointer;
+        }
+
+        th:hover {
+            background-color: #e9ecef;
+        }
+
+        .sort-btn {
+            background: none;
+            border: none;
+            color: #333;
+            font-weight: bold;
+            padding: 0;
+            text-align: left;
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .error {
+            color: red;
+            font-size: 0.875rem;
+            margin-top: 5px;
+        }
+    </style>
 </head>
 <body>
     <div class="app">
@@ -427,7 +529,7 @@
                     <i data-lucide="chevron-left"></i>
                 </button>
             </div>
-            <a href="/" class="nav-item" style="background-color: #94a3b8;">
+            <a href="/" class="nav-item">
                 <i data-lucide="bot"></i>
                 <span class="nav-text">Assistant</span>
             </a>
@@ -435,7 +537,7 @@
                 <i data-lucide="file-text"></i>
                 <span class="nav-text">Documents</span>
             </a>
-            <a href="/contacts" class="nav-item">
+            <a href="/contacts" class="nav-item" style="background-color: #94a3b8;">
                 <i data-lucide="users"></i>
                 <span class="nav-text">Contacts</span>
             </a>
@@ -446,52 +548,131 @@
         </nav>
 
         <main class="chat-container">
-            <div class="messages" id="messages">
-                {% if msgs|length == 0 %}
-                    <div class="message">
-                        <div class="message-content">
-                            Hi I am a first message.
-                            <span class="timestamp">{{obj.create_date}}</span>
-                        </div>
+            <h1>Contacts Management</h1>
+
+            <form id="contactForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="name">Name:</label>
+                        <input type="text" id="name" required>
                     </div>
-                {% endif %}
-                {% for obj in msgs|slice:":20" %}
-                    {% if obj.if_user %}
-                    <div class="message user">
-                        <div class="message-content">
-                            {{obj.msg}}
-                            <span class="timestamp">{{obj.create_date}}</span>
-                        </div>
+
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" required>
                     </div>
-                    {% else %}
-                        <div class="message">
-                            <div class="message-content">
-                                {{obj.msg}}
-                                <span class="timestamp">{{obj.create_date}}</span>
-                            </div>
-                        </div>
-                    {% endif %}
-                {% endfor %}
-            </div>
-            <div class="attachments-container" id="attachmentsContainer">
-                <h3 style="margin-bottom: 0.75rem; color: #64748b;">Attachments</h3>
-                <div id="attachmentsList"></div>
-            </div>
-            <div class="input-container">
-                <textarea 
-                    class="message-input" 
-                    placeholder="Type a message..."
-                    id="messageInput"
-                ></textarea>
-                <div class="input-actions">
-                    <button class="action-button" title="Attach file">
-                        <i data-lucide="paperclip"></i>
-                    </button>
-                    <button class="action-button" title="Send message" onclick="messageInputbtnf();">
-                        <i data-lucide="send" id="sendicon"></i>
-                    </button>
+
+                    <div class="form-group">
+                        <label for="type">Type:</label>
+                        <select id="type" required>
+                            <option value="">Select type</option>
+                            <option value="parent">Parent</option>
+                            <option value="professional">Professional</option>
+                            <option value="doctor">Doctor</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="title">Title:</label>
+                        <input type="text" id="title" required>
+                    </div>
                 </div>
+
+                <button type="submit">Add Contact</button>
+            </form>
+
+            <div class="search-container">
+                <label for="search">Search:</label>
+                <input type="text" id="search" placeholder="Search contacts...">
             </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th><button class="sort-btn" data-sort="name">Name ↕</button></th>
+                        <th><button class="sort-btn" data-sort="title">Title ↕</button></th>
+                        <th>Type</th>
+                        <th>Email</th>
+                    </tr>
+                </thead>
+                <tbody id="contactsList"></tbody>
+            </table>
+
+            <script>
+                let contacts = JSON.parse(localStorage.getItem('contacts')) || [];
+                let sortField = 'name';
+                let sortDirection = 'asc';
+
+                function saveContacts() {
+                    localStorage.setItem('contacts', JSON.stringify(contacts));
+                }
+
+                function addContact(e) {
+                    e.preventDefault();
+
+                    const contact = {
+                        id: Date.now(),
+                        name: document.getElementById('name').value,
+                        email: document.getElementById('email').value,
+                        type: document.getElementById('type').value,
+                        title: document.getElementById('title').value
+                    };
+
+                    contacts.push(contact);
+                    saveContacts();
+                    displayContacts();
+                    e.target.reset();
+                }
+
+                function sortContacts(field) {
+                    if (sortField === field) {
+                        sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        sortField = field;
+                        sortDirection = 'asc';
+                    }
+                    displayContacts();
+                }
+
+                function displayContacts() {
+                    const searchTerm = document.getElementById('search').value.toLowerCase();
+                    let filteredContacts = contacts.filter(contact => 
+                        contact.name.toLowerCase().includes(searchTerm) ||
+                        contact.title.toLowerCase().includes(searchTerm)
+                    );
+
+                    filteredContacts.sort((a, b) => {
+                        const compareValue = a[sortField].localeCompare(b[sortField]);
+                        return sortDirection === 'asc' ? compareValue : -compareValue;
+                    });
+
+                    const tbody = document.getElementById('contactsList');
+                    tbody.innerHTML = '';
+
+                    filteredContacts.forEach(contact => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${contact.name}</td>
+                            <td>${contact.title}</td>
+                            <td>${contact.type}</td>
+                            <td>${contact.email}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                }
+
+                // Event Listeners
+                document.getElementById('contactForm').addEventListener('submit', addContact);
+                document.getElementById('search').addEventListener('input', displayContacts);
+                document.querySelectorAll('.sort-btn').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        sortContacts(e.target.dataset.sort);
+                    });
+                });
+
+                // Initial display
+                displayContacts();
+            </script>
         </main>
     </div>
 
@@ -519,159 +700,6 @@
 				toggleBtn.innerHTML = "<i data-lucide='chevron-left'></i>";
 			}
             lucide.createIcons();
-        });
-
-        // Auto-resize textarea
-        const messageInput = document.getElementById('messageInput');
-        
-        messageInput.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = Math.min(this.scrollHeight, 150) + 'px';
-        });
-
-        // Send message on Enter (Shift+Enter for new line)
-        messageInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                if (this.value.trim()) {
-                    sendMessage(this.value);
-                    this.value = '';
-                    this.style.height = 'auto';
-                }
-            }
-        });
-        // Send message on btn
-        function messageInputbtnf() { 
-			const messageInput = document.getElementById('messageInput');
-			if (messageInput.value.trim()) {
-				sendMessage(messageInput.value);
-				messageInput.value = '';
-				messageInput.style.height = 'auto';
-			}
-        };
-
-        var thinking = 0;
-        function sendMessage(content) {
-            if (thinking==1) return;
-            thinking = 1;
-	
-            let icon = document.getElementById("sendicon");
-            icon.setAttribute("data-lucide","square");
-            lucide.createIcons();
-            const messages = document.getElementById('messages');
-            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'message user';
-            messageDiv.innerHTML = `
-                <div class="message-content">
-                    ${content}
-                    <span class="timestamp">${time}</span>
-                </div>
-            `;
-            
-            messages.appendChild(messageDiv);
-            messages.scrollTop = messages.scrollHeight;
-
-            const fileInput = document.querySelector('input[type="file"]'); 
-    
-            const formData = new FormData();
-            if (document.getElementById("fileInput")){ 
-                for (let i = 0; i < fileInput.files.length; i++) {
-                    formData.append("files[]", fileInput.files[i]);  // Append multiple files
-                }
-            }
-            formData.append("msg", content);
-            
-            $.ajax({
-                url : '/sendmsg',
-                type : 'POST',
-                data : formData,processData: false,  // Prevent jQuery from processing FormData
-                contentType: false,  // Let browser set the correct content type
-                dataType: 'json',
-                success : function(data) {
-                    const messageDiv = document.createElement('div');
-                    messageDiv.className = 'message';
-                    messageDiv.innerHTML = `
-                        <div class="message-content">
-                            ${data.message}
-                            <span class="timestamp">${data.tst}</span>
-                        </div>
-                    `;
-                    messages.appendChild(messageDiv);
-                    messages.scrollTop = messages.scrollHeight;
-
-                    let icon = document.getElementById("sendicon");
-                    icon.setAttribute("data-lucide","send");
-                    lucide.createIcons();
-                    thinking = 0;
-                    if(document.getElementsByClassName("attachment-remove").length>0){
-                        const attachments = document.getElementsByClassName("attachment");
-                        // Convert HTMLCollection to an array and loop through to remove each element
-                        Array.from(attachments).forEach(attachment => {
-                            attachment.remove();
-                        });
-                        document.querySelector('input[type="file"]').value = '';
-                        if (document.getElementById('attachmentsList').children.length === 0) {
-                            document.getElementById('attachmentsContainer').classList.remove('visible');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error("AJAX Error: ", error);  // Log the error to the console for debugging
-                    alert("An error occurred while sending the message. Please try again later.");            
-                }
-            });
-        }
-
-        // File attachment handling
-        const fileInput = document.createElement('input');
-        fileInput.type = 'file';
-        fileInput.multiple = true;
-        fileInput.id="fileInput";
-        fileInput.style.display = 'none';
-        document.body.appendChild(fileInput);
-
-        const attachmentsContainer = document.getElementById('attachmentsContainer');
-        const attachmentsList = document.getElementById('attachmentsList');
-
-        document.querySelector('button[title="Attach file"]').addEventListener('click', () => {
-            fileInput.click();
-        });
-
-        fileInput.addEventListener('change', function() {
-            if (this.files && this.files.length > 0) {
-                attachmentsContainer.classList.add('visible');
-                
-                Array.from(this.files).forEach(file => {
-                    const attachment = document.createElement('div');
-                    attachment.className = 'attachment';
-                    
-                    const fileSize = (file.size / 1024).toFixed(1) + ' KB';
-                    
-                    attachment.innerHTML = `
-                        <i class="attachment-icon" data-lucide="file"></i>
-                        <div class="attachment-info">
-                            <div class="attachment-name">${file.name}</div>
-                            <div class="attachment-size">${fileSize}</div>
-                        </div>
-                        <button class="attachment-remove" title="Remove file">
-                            <i data-lucide="x"></i>
-                        </button>
-                    `;
-                    
-                    attachmentsList.appendChild(attachment);
-                    lucide.createIcons();
-
-                    attachment.querySelector('.attachment-remove').addEventListener('click', () => {
-                        attachment.remove();
-						fileInput.value = '';
-                        if (attachmentsList.children.length === 0) {
-                            attachmentsContainer.classList.remove('visible');
-                        }
-                    });
-                });
-            }
         });
     </script>
     {% if agreed == 0 %}
