@@ -20,10 +20,17 @@ from app import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("signup",views.signup),
-    path("login",views.logindef),
-    path("logout",views.logoutdef),
-    path("adddoc",views.adddoc),
+    #path("signup",views.signup),
+    #path("login",views.logindef),
+    #path("logout",views.logoutdef),
+    #path("adddoc",views.adddoc),
+    
+    #AJAX
     path("sendmsg",views.sendmsg),
-    path("", views.home)
+    path("agreebtn",views.agreebtn),
+
+
+    path("terms",views.terms),
+    path("privacy-policy",views.privacypolicy),
+    path("", views.index)
 ]
