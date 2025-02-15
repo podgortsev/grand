@@ -93,6 +93,7 @@ def docs(request):
 
 @csrf_exempt    
 def sendmsg(request):
+    print("-----------------------------------------")
     if request.method != "POST":
         return JsonResponse({"error": "Invalid request method"}, status=400)
 
@@ -105,14 +106,17 @@ def sendmsg(request):
     m.if_user = True
     m.msg = msg
     m.save()
+    print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
 
     files = request.FILES.getlist("files[]")
     if files:
+        print("ccccccccccccccccccccccccccccccccc")
         for uploaded_file in files:
+            print("ddddddddddddddddddddddddddd")
             if uploaded_file.size > MAX_FILE_SIZE:
                 return JsonResponse({"error": "File size exceeds 50MB limit"}, status=400)
             savefiles(uploaded_file, request.COOKIES['user_logged_in'])
-
+    print("bbbbbbbbbbbbbbbbbbb")
     answer = askopenai(msg)    
     ans_tst = datetime.now().strftime("%I:%M %p")
     
@@ -129,7 +133,7 @@ def askopenai(msg):
 
 def savefiles(uploaded_file, uid):
     fname = ''.join(random.choices(string.ascii_letters + string.digits, k=25)) + "_" + uploaded_file.name
-    m = user_files()
+    m = u_files()
     m.user_id = uid
     m.doc_name = fname
     m.doc_url = ""  # Placeholder for actual file URL
