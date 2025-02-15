@@ -93,6 +93,7 @@ def privacypolicy(request):
     response = render(request, 'privacypolicy.html', {})    
     return response
 
+@csrf_exempt
 def agreebtn(request):
     t = term_agree()
     t.user_id = request.COOKIES['user_logged_in']
