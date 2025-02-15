@@ -140,6 +140,19 @@ def agreebtn(request):
     t.save()
     return JsonResponse({}, status=200)
 
+@csrf_exempt
+def sendcontact(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "Invalid request method"}, status=400)
+
+    m = mod_contacts()
+    m.user_id = request.COOKIES['user_logged_in']
+    m.name = request.POST.get("name")
+    m.email = request.POST.get("email")
+    m.type = request.POST.get("type")
+    m.title = request.POST.get("title")
+    m.save()
+    return JsonResponse({}, status=200)
 
 """
 @csrf_exempt
