@@ -7,7 +7,7 @@ class m_msgs(models.Model):
     create_date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     msg = models.TextField()
 
-class user_files(models.Model):
+class u_files(models.Model):
     user_id = models.CharField(max_length=255)
     doc_name = models.CharField(max_length=2000)
     doc_url = models.CharField(max_length=2048)
