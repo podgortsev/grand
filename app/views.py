@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
-from app.models import mod_msgs, user_files, term_agree, mod_contacts
+from app.models import m_msgs, user_files, term_agree, mod_contacts
 import openai
 from django.contrib.auth import logout
 import random
@@ -32,7 +32,7 @@ def index(request):
     if term_agree.objects.filter(user_id=user_status).count()==0:
         agreed = 0
 
-    msgs = mod_msgs.objects.filter(user_id=user_status)
+    msgs = m_msgs.objects.filter(user_id=user_status)
     
     context_data = {
         'msgs': msgs,
@@ -94,7 +94,7 @@ def sendmsg(request):
     if not msg:
         return JsonResponse({"error": "Message is required"}, status=400)
 
-    m = mod_msgs()
+    m = m_msgs()
     m.user_id = request.COOKIES['user_logged_in']
     m.if_user = True
     m.msg = msg
@@ -110,7 +110,7 @@ def sendmsg(request):
     answer = askopenai(msg)    
     ans_tst = datetime.now().strftime("%I:%M %p")
     
-    m = mod_msgs()
+    m = m_msgs()
     m.user_id = request.COOKIES['user_logged_in']
     m.if_user = False
     m.msg = answer
@@ -174,10 +174,10 @@ def signup(request):
                 login(request, user)
                 user_status = request.COOKIES['user_logged_in']
                 if user_status:
-                    messages = mod_msgs.objects.filter(user_id=user_status) #temp
+                    messages = m_msgs.objects.filter(user_id=user_status) #temp
 
                     for msg in messages:
-                        mod_msgs.objects.create(
+                        m_msgs.objects.create(
                             user_id=user.id,
                             if_user=msg.if_user,
                             create_date=msg.create_date,  # Optional, Django auto-generates this

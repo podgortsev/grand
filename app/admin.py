@@ -1,10 +1,10 @@
 from django.contrib import admin
-from app.models import mod_msgs, user_files, term_agree, mod_contacts
+from app.models import m_msgs, user_files, term_agree, mod_contacts
 
-class admin_mod_msgs(admin.ModelAdmin): 
+class admin_m_msgs(admin.ModelAdmin): 
     list_display = ('user_id','if_user', 'create_date', 'msg')
 
-admin.site.register(mod_msgs,admin_mod_msgs)
+admin.site.register(m_msgs,admin_m_msgs)
 
 class admin_user_files(admin.ModelAdmin): 
     list_display = ('user_id','doc_name','doc_url')

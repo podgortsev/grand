@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.timezone import now
 
-class mod_msgs(models.Model):
+class m_msgs(models.Model):
     user_id = models.CharField(max_length=255)
     if_user = models.BooleanField()
     create_date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
