@@ -1,68 +1,105 @@
 from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse 
+from django.http import HttpResponse, JsonResponse
 from django.template import loader
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.views.decorators.csrf import csrf_exempt
-from datetime import datetime, timedelta, time
-from app.models import mod_msgs, temp_mod_msgs, user_files
+from datetime import datetime
+from app.models import mod_msgs, user_files
 import openai
 from django.contrib.auth import logout
 import random
 import string
 
-openai.api_key=""
+# Set your OpenAI API Key
+openai.api_key = ""
 
-def home(request):
-    if request.user.is_authenticated:
-        u_doc = user_files.objects.filter(user_id=request.user.id)
-        if(u_doc.count()==0):
-            cou_doc=0
-        else:
-            cou_doc=1
+# Max file size allowed (in bytes), here it's set to 50MB
+MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB
 
-        if request.user.last_name == "":
-            msgs = mod_msgs.objects.filter(user_id = request.user.id)
-            if msgs.count()>20:
-                context_data = {
-                    'msgs': msgs,
-                    "type":4,
-                    "cou_doc":cou_doc
-                }
-            else:
-                context_data = {
-                    'msgs': msgs,
-                    "type":3,
-                    "cou_doc":cou_doc
-                }
-            response = render(request, 'home.html', context_data)
-        else:
-            pass 
-    else:
-        if 'user_logged_in' in request.COOKIES:
-            user_status = request.COOKIES['user_logged_in']
-            msgs = temp_mod_msgs.objects.filter(user_id = user_status)
-            if msgs.count()>10:
-                context_data = {
-                    'msgs': msgs,
-                    "type":2
-                }
-            else:
-                context_data = {
-                    'msgs': msgs,
-                    "type":1
-                }
-            response = render(request, 'home.html', context_data)
-        else:
-            user_temp_id = ''.join(random.choices(string.ascii_letters + string.digits, k=25))
-            context_data = {
-                "type":1,
-                'msgs':[]
-            }        
-            response = render(request, 'home.html', context_data)
-            response.set_cookie('user_logged_in', user_temp_id, max_age=2147483647)
+def index(request):
+    if 'user_logged_in' not in request.COOKIES:
+        user_temp_id = ''.join(random.choices(string.ascii_letters + string.digits, k=25))
+        response.set_cookie('user_logged_in', user_temp_id, max_age=2147483647)
+    
+    agreed = 1
+    if 'user_agreed' not in request.COOKIES:
+        agreed = 0
+
+    user_status = request.COOKIES.get('user_logged_in')
+    msgs = mod_msgs.objects.filter(user_id=user_status)
+    
+    context_data = {
+        'msgs': msgs,
+        "agreed": agreed
+    }
+    
+    response = render(request, 'index.html', context_data)    
     return response
 
+def sendagreed(request):
+    pass
+
+@csrf_exempt    
+def sendmsg(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "Invalid request method"}, status=400)
+
+    msg = request.POST.get("msg")
+    if not msg:
+        return JsonResponse({"error": "Message is required"}, status=400)
+
+    m = mod_msgs()
+    m.user_id = request.COOKIES['user_logged_in']
+    m.if_user = True
+    m.msg = msg
+    m.save()
+
+    files = request.FILES.getlist("files[]")
+    if files:
+        for uploaded_file in files:
+            if uploaded_file.size > MAX_FILE_SIZE:
+                return JsonResponse({"error": "File size exceeds 50MB limit"}, status=400)
+            savefiles(uploaded_file, request.COOKIES['user_logged_in'])
+
+    answer = askopenai(msg)    
+    ans_tst = datetime.now().strftime("%I:%M %p")
+    
+    m = mod_msgs()
+    m.user_id = request.COOKIES['user_logged_in']
+    m.if_user = False
+    m.msg = answer
+    m.save()
+    
+    return JsonResponse({"message": answer, "tst": ans_tst}, status=200)
+
+def askopenai(msg):
+    return "LLM is still not working"
+
+def savefiles(uploaded_file, uid):
+    fname = ''.join(random.choices(string.ascii_letters + string.digits, k=25)) + "_" + uploaded_file.name
+    m = user_files()
+    m.user_id = uid
+    m.doc_name = fname
+    m.doc_url = ""  # Placeholder for actual file URL
+    m.save()
+    return "ok"
+
+def terms(request):
+    response = render(request, 'terms.html', {})    
+    return response
+
+def privacypolicy(request):
+    response = render(request, 'privacypolicy.html', {})    
+    return response
+
+def agreebtn(request):
+    response = HttpResponse("Cookie Set")
+    response.set_cookie('user_agreed', 1, max_age=2147483647)
+    return JsonResponse({}, status=200)
+
+
+"""
 @csrf_exempt
 def signup(request):
     try:
@@ -77,7 +114,7 @@ def signup(request):
                 login(request, user)
                 user_status = request.COOKIES['user_logged_in']
                 if user_status:
-                    messages = temp_mod_msgs.objects.filter(user_id=user_status)
+                    messages = mod_msgs.objects.filter(user_id=user_status) #temp
 
                     for msg in messages:
                         mod_msgs.objects.create(
@@ -105,71 +142,11 @@ def logindef(request):
     except Exception as e: 
         return JsonResponse({"message": str(e)}, status=400)
 
-@csrf_exempt    
-def sendmsg(request):
-    msg = request.POST["msg"]
-    tst = request.POST["tst"]
-    type = request.POST["type"]
-    if type=="1":
-        m = temp_mod_msgs()
-        m.user_id = request.COOKIES['user_logged_in']
-        m.if_user = True
-        m.msg = msg
-        m.save()
-        
-        if temp_mod_msgs.objects.filter(user_id = request.COOKIES['user_logged_in'],if_user=True).count()>5:
-            return JsonResponse({"status":"limit1"}, status=200)
-        else:
-            #openai
-            try:
-                # Make a request to the GPT-3.5 (or GPT-4 if available) model
-                response = openai.completions.create(
-                    model="gpt-3.5-turbo",  # or another model available to you (e.g., gpt-4)
-                    prompt=msg,
-                    max_tokens=100
-                )
-                answer = response['choices'][0]['message']['content']
-            except Exception as e:
-                return JsonResponse({"message": str(e),"status":"error"}, status=200)
-            ans_tst = datetime.now().strftime("%I:%M %p")
-            m = mod_msgs()
-            m.user_id = request.user.id
-            m.if_user = False
-            m.msg = answer
-            m.save()
-            return JsonResponse({"message": answer,"tst":ans_tst,"status":"ok1"}, status=200)
-    else:
-        m = mod_msgs()
-        m.user_id = request.user.id
-        m.if_user = True
-        m.msg = msg
-        m.save()
-        if mod_msgs.objects.filter(user_id = request.user.id,if_user=True).count()>10:
-            return JsonResponse({"status":"limit2"}, status=200)
-        else:
-            #openai
-            try:
-                # Make a request to the GPT-3.5 (or GPT-4 if available) model
-                response = openai.completions.create(
-                    model="gpt-3.5-turbo",  # or another model available to you (e.g., gpt-4)
-                    prompt=msg,
-                    max_tokens=100
-                )
-                answer = response['choices'][0]['message']['content']
-            except Exception as e:
-                return JsonResponse({"message": str(e),"status":"error"}, status=200)
-            ans_tst = datetime.now().strftime("%I:%M %p")
-            m = mod_msgs()
-            m.user_id = request.user.id
-            m.if_user = False
-            m.msg = answer
-            m.save()
-            return JsonResponse({"message": answer,"tst":ans_tst,"status":"ok"}, status=200)
-
 @csrf_exempt 
 def logoutdef(request):
     logout(request)
     return JsonResponse({"status":"ok"}, status=200)
+
 
 @csrf_exempt 
 def adddoc(request):
@@ -179,3 +156,5 @@ def adddoc(request):
     u.doc = link
     u.save()
     return JsonResponse({"status":"ok"}, status=200)
+
+"""
