@@ -31,6 +31,8 @@ urlpatterns = [
 
 
     path("terms",views.terms),
+    path("contacts",views.contacts),
+    path("docs",views.docs),
     path("privacy-policy",views.privacypolicy),
     path("", views.index)
 ]
