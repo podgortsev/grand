@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
-from app.models import mod_msgs, user_files, term_agree
+from app.models import mod_msgs, user_files, term_agree, mod_contacts
 import openai
 from django.contrib.auth import logout
 import random
@@ -37,8 +37,48 @@ def index(request):
     response = render(request, 'index.html', context_data)    
     return response
 
-def sendagreed(request):
-    pass
+def contacts(request):
+    if 'user_logged_in' not in request.COOKIES:
+        user_temp_id = ''.join(random.choices(string.ascii_letters + string.digits, k=25))
+        response.set_cookie('user_logged_in', user_temp_id, max_age=2147483647)
+    
+    user_status = request.COOKIES.get('user_logged_in')
+    agreed = 1
+    if term_agree.objects.filter(user_id=user_status).count()==0:
+        agreed = 0
+
+    contas = mod_contacts.objects.filter(user_id=user_status)
+    
+    context_data = {
+        'contas': contas,
+        "agreed": agreed
+    }
+    
+    response = render(request, 'contacts.html', context_data)    
+    return response
+
+
+def docs(request):
+    if 'user_logged_in' not in request.COOKIES:
+        user_temp_id = ''.join(random.choices(string.ascii_letters + string.digits, k=25))
+        response.set_cookie('user_logged_in', user_temp_id, max_age=2147483647)
+    
+    user_status = request.COOKIES.get('user_logged_in')
+    agreed = 1
+    if term_agree.objects.filter(user_id=user_status).count()==0:
+        agreed = 0
+
+    docums = user_files.objects.filter(user_id=user_status)
+    
+    context_data = {
+        'docums': docums,
+        "agreed": agreed
+    }
+    
+    response = render(request, 'contacts.html', context_data)    
+    return response
+
+
 
 @csrf_exempt    
 def sendmsg(request):
