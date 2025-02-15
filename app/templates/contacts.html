@@ -8,6 +8,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <style>
         @media screen and (max-width: 768px) {
+            .mobileno{display: none;}
             #toggleSidebar{display: none;}
             .sidebar-header{padding-right:1rem !important}
             #sidebar{
@@ -591,9 +592,9 @@
                     {% for obj in contas %}
                         <tr>
                             <td>{{obj.name}}</td>
-                            <td>{{obj.title}}</td>
-                            <td>{{obj.type}}</td>
-                            <td>{{obj.email}}</td>
+                            <td class="mobileno">{{obj.title}}</td>
+                            <td class="mobileno">{{obj.type}}</td>
+                            <td class="mobileno">{{obj.email}}</td>
                         </tr>
                     {% endfor %}
                 </thead>
@@ -675,9 +676,9 @@
                         const row = document.createElement('tr');
                         row.innerHTML = `
                             <td>${contact.name}</td>
-                            <td>${contact.title}</td>
-                            <td>${contact.type}</td>
-                            <td>${contact.email}</td>
+                            <td class="mobileno">${contact.title}</td>
+                            <td class="mobileno">${contact.type}</td>
+                            <td class="mobileno">${contact.email}</td>
                         `;
                         tbody.appendChild(row);
                     });
