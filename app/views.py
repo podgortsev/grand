@@ -79,7 +79,7 @@ def docs(request):
     if term_agree.objects.filter(user_id=user_status).count()==0:
         agreed = 0
 
-    docums = user_files.objects.filter(user_id=user_status)
+    docums = u_files.objects.filter(user_id=user_status)
     
     context_data = {
         'docums': docums,
