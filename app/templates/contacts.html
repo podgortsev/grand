@@ -602,13 +602,8 @@
             </table>
 
             <script>
-                let contacts = JSON.parse(localStorage.getItem('contacts')) || [];
                 let sortField = 'name';
                 let sortDirection = 'asc';
-
-                function saveContacts() {
-                    localStorage.setItem('contacts', JSON.stringify(contacts));
-                }
 
                 function addContact(e) {
                     e.preventDefault();
@@ -632,7 +627,6 @@
                             };
                             
                             contacts.push(contact);
-                            saveContacts();
                             displayContacts();
                             e.target.reset();
                         },
