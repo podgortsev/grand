@@ -612,14 +612,6 @@
 
                 function addContact(e) {
                     e.preventDefault();
-
-                    const contact = {
-                        id: Date.now(),
-                        name: document.getElementById('name').value,
-                        email: document.getElementById('email').value,
-                        type: document.getElementById('type').value,
-                        title: document.getElementById('title').value
-                    };
                     $.ajax({
                         url : '/sendcontact',
                         type : 'POST',
@@ -633,18 +625,24 @@
                         contentType: false,  // Let browser set the correct content type
                         dataType: 'json',
                         success : function(data) {
+                            const contact = {
+                                id: Date.now(),
+                                name: document.getElementById('name').value,
+                                email: document.getElementById('email').value,
+                                type: document.getElementById('type').value,
+                                title: document.getElementById('title').value
+                            };
                             
+                            contacts.push(contact);
+                            saveContacts();
+                            displayContacts();
+                            e.target.reset();
                         },
                         error: function(xhr, status, error) {
                             console.error("AJAX Error: ", error);  // Log the error to the console for debugging
                             alert("An error occurred while sending the contact. Please try again later.");            
                         }
                     });
-
-                    contacts.push(contact);
-                    saveContacts();
-                    displayContacts();
-                    e.target.reset();
                 }
 
                 function sortContacts(field) {
