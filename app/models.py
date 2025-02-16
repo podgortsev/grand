@@ -24,3 +24,10 @@ class m_contacts(models.Model):
     email = models.CharField(max_length=255)
     type = models.CharField(max_length=255)
     title = models.CharField(max_length=255)
+
+class OpenAIThread(models.Model):
+    user_id = models.CharField(max_length=255, unique=True)  # Unique thread per user
+    thread_id = models.CharField(max_length=255, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
