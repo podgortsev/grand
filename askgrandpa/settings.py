@@ -87,9 +87,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'postgres',  # Change if you renamed the default DB
-        'USER': os.getenv('OPENAI_API_KEY'),
-        'PASSWORD': os.getenv('OPENAI_API_KEY'),
-        'HOST': os.getenv('OPENAI_API_KEY'),
+        'USER': os.getenv('dbuser'),
+        'PASSWORD': os.getenv('dbpass'),
+        'HOST': os.getenv('dbhost'),
         'PORT': '6543',
     }
 }
