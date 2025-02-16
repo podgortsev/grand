@@ -620,11 +620,6 @@
                         type: document.getElementById('type').value,
                         title: document.getElementById('title').value
                     };
-
-                    contacts.push(contact);
-                    saveContacts();
-                    displayContacts();
-                    e.target.reset();
                     $.ajax({
                         url : '/sendcontact',
                         type : 'POST',
@@ -645,6 +640,11 @@
                             alert("An error occurred while sending the contact. Please try again later.");            
                         }
                     });
+
+                    contacts.push(contact);
+                    saveContacts();
+                    displayContacts();
+                    e.target.reset();
                 }
 
                 function sortContacts(field) {
