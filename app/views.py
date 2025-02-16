@@ -5,14 +5,13 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
-from app.models import m_msgs, u_files, term_agree, m_contacts
+from app.models import m_msgs, u_files, term_agree, m_contacts, OpenAIThread
 import openai
 from django.contrib.auth import logout
 import random
 import string
-
-# Set your OpenAI API Key
-openai.api_key = ""
+import time
+import os
 
 # Max file size allowed (in bytes), here it's set to 50MB
 MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB
@@ -93,7 +92,6 @@ def docs(request):
 
 @csrf_exempt    
 def sendmsg(request):
-    print("-----------------------------------------")
     if request.method != "POST":
         return JsonResponse({"error": "Invalid request method"}, status=400)
 
@@ -106,18 +104,15 @@ def sendmsg(request):
     m.if_user = True
     m.msg = msg
     m.save()
-    print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
 
     files = request.FILES.getlist("files[]")
     if files:
-        print("ccccccccccccccccccccccccccccccccc")
         for uploaded_file in files:
-            print("ddddddddddddddddddddddddddd")
             if uploaded_file.size > MAX_FILE_SIZE:
                 return JsonResponse({"error": "File size exceeds 50MB limit"}, status=400)
             savefiles(uploaded_file, request.COOKIES['user_logged_in'])
-    print("bbbbbbbbbbbbbbbbbbb")
-    answer = askopenai(msg)    
+    
+    answer = askopenai(msg, request.COOKIES['user_logged_in'])    
     ans_tst = datetime.now().strftime("%I:%M %p")
     
     m = m_msgs()
@@ -128,8 +123,53 @@ def sendmsg(request):
     
     return JsonResponse({"message": answer, "tst": ans_tst}, status=200)
 
-def askopenai(msg):
-    return "LLM is still not working"
+openai.api_key = os.getenv('OPENAI_API_KEY')  # Replace with your OpenAI API key
+ASSISTANT_ID = os.getenv('ASSISTANT_ID')  # Replace with your OpenAI Assistant ID
+
+def askopenai(msg, user_id):
+    # Check if user has an existing thread
+    thread = OpenAIThread.objects.filter(user_id=user_id).first()
+    
+    if not thread:
+        # Create a new thread if one does not exist
+        thread_response = openai.beta.threads.create()
+        thread = OpenAIThread.objects.create(user_id=user_id, thread_id=thread_response.id)
+
+    # Send user message to OpenAI Assistant
+    openai.beta.threads.messages.create(
+        thread_id=thread.thread_id,
+        role="user",
+        content=msg
+    )
+
+    # Run Assistant processing
+    run_response = openai.beta.threads.runs.create(
+        thread_id=thread.thread_id,
+        assistant_id=ASSISTANT_ID
+    )
+
+    # Wait for completion
+    while True:
+        run_status = openai.beta.threads.runs.retrieve(
+            thread_id=thread.thread_id,
+            run_id=run_response.id
+        )
+        if run_status.status == "completed":
+            break
+        time.sleep(1)  # Avoid excessive API calls
+
+    # Retrieve messages and extract Assistant's response
+    messages = openai.beta.threads.messages.list(thread_id=thread.thread_id)
+    ai_response = "I'm sorry, I couldn't process that."
+    for msg in messages.data:
+        ai_response = str(msg).split('value="')[1].split('"), type=')[0]
+        break
+        #(msg.content for msg in messages.data if msg.role == 'assistant'), 
+    return ai_response
+
+
+#def askopenai(msg):
+#    return "LLM is still not working"
 
 def savefiles(uploaded_file, uid):
     fname = ''.join(random.choices(string.ascii_letters + string.digits, k=25)) + "_" + uploaded_file.name
