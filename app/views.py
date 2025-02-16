@@ -12,7 +12,6 @@ import random
 import string
 import time
 import os
-
 # Max file size allowed (in bytes), here it's set to 50MB
 MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB
 
@@ -162,9 +161,12 @@ def askopenai(msg, user_id):
     messages = openai.beta.threads.messages.list(thread_id=thread.thread_id)
     ai_response = "I'm sorry, I couldn't process that."
     for msg in messages.data:
-        ai_response = str(msg).split('value="')[1].split('"), type=')[0]
-        break
-        #(msg.content for msg in messages.data if msg.role == 'assistant'), 
+        if msg.role == 'assistant':
+            try:
+                ai_response = msg.content[0].text.value
+                break
+            except:
+                pass
     return ai_response
 
 
