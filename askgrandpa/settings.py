@@ -87,9 +87,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'postgres',  # Change if you renamed the default DB
-        'USER': 'postgres.tczmkrwioovaqmukwivg',
-        'PASSWORD': 'pMPm6554!',
-        'HOST': 'aws-0-us-west-1.pooler.supabase.com',
+        'USER': os.getenv('dbuser'),
+        'PASSWORD': os.getenv('dbpass'),
+        'HOST': os.getenv('dbhost'),
         'PORT': '6543',
     }
 }
