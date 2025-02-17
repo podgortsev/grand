@@ -417,6 +417,37 @@
         .attachment-remove:hover {
             background: #fee2e2;
         }
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+        }
+
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            margin: 0 2px;
+            background: #555;
+            border-radius: 50%;
+            opacity: 0.5;
+            animation: blink 1.5s infinite;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes blink {
+            0%, 100% {
+                opacity: 0.3;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 <body>
@@ -474,6 +505,15 @@
                         </div>
                     {% endif %}
                 {% endfor %}
+                <div class="message">
+                    <div class="message-content">
+                        <div class="typing-indicator" id="typing">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="attachments-container" id="attachmentsContainer">
                 <h3 style="margin-bottom: 0.75rem; color: #64748b;">Attachments</h3>
