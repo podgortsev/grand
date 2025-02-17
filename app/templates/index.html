@@ -538,6 +538,10 @@
     </div>
 
     <script>
+        $(document).ready(function(){
+            document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight
+        });
+    
         // Initialize Lucide icons
         lucide.createIcons();
 		var istogg = 0;
