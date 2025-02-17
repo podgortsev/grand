@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat with Grandpa</title>
+    <title>Chat with Saba</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <style>
@@ -440,6 +440,10 @@
             animation-delay: 0.4s;
         }
 
+        #msgtyping{
+            display: none;
+        }
+
         @keyframes blink {
             0%, 100% {
                 opacity: 0.3;
@@ -455,7 +459,7 @@
         <nav class="sidebar expanded" id="sidebar">
             <div class="sidebar-header">
                 <i data-lucide="message-circle"></i>
-                <span class="nav-text" style="display: inline;">Ask Grandpa</span>
+                <span class="nav-text" style="display: inline;">Ask Saba</span>
                 <button class="toggle-btn" id="toggleSidebar">
                     <i data-lucide="chevron-left"></i>
                 </button>
@@ -505,8 +509,8 @@
                         </div>
                     {% endif %}
                 {% endfor %}
-                <div class="message">
-                    <div class="message-content">
+                <div class="message" id="msgtyping">
+                    <div class="message-content" style="padding: 1.15rem 0.75rem !important;">
                         <div class="typing-indicator" id="typing">
                             <span></span>
                             <span></span>
@@ -601,6 +605,7 @@
             if (thinking==1) return;
             thinking = 1;
 	
+            $("#msgtyping").show();
             let icon = document.getElementById("sendicon");
             icon.setAttribute("data-lucide","square");
             lucide.createIcons();
@@ -636,6 +641,7 @@
                 contentType: false,  // Let browser set the correct content type
                 dataType: 'json',
                 success : function(data) {
+                    $("#msgtyping").hide();
                     const messageDiv = document.createElement('div');
                     messageDiv.className = 'message';
                     messageDiv.innerHTML = `
