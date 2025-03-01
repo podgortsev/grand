@@ -116,7 +116,7 @@ def sendmsg(request):
     
     answer = askopenai(msg, request.COOKIES['user_logged_in'],0)    
     ans_tst = datetime.now().strftime("%I:%M %p")
-    
+    return JsonResponse({"message": "aaa", "tst": ans_tst}, status=200)
     m = m_msgs()
     m.user_id = request.COOKIES['user_logged_in']
     m.if_user = False
