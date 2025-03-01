@@ -195,7 +195,7 @@ def askopenai(msg, user_id, typ):
     new_assistant_name = str(ai_response)[:new_assistant_name_index].strip()
     ans_msg = str(ai_response)[new_assistant_name_index + 1:].strip()
     
-    if new_assistant_name!=0:
+    if new_assistant_name!="0":
         try:
             tryint = int(new_assistant_name)
             
