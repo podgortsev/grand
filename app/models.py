@@ -29,5 +29,6 @@ class OpenAIThread(models.Model):
     user_id = models.CharField(max_length=255, unique=True)  # Unique thread per user
     thread_id = models.CharField(max_length=255, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    assistant_name = models.CharField(default="1",null=True)
 
 

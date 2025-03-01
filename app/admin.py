@@ -1,5 +1,5 @@
 from django.contrib import admin
-from app.models import m_msgs, u_files, term_agree, m_contacts
+from app.models import m_msgs, u_files, term_agree, m_contacts, OpenAIThread
 
 class admin_m_msgs(admin.ModelAdmin): 
     list_display = ('user_id','if_user', 'create_date', 'msg')
@@ -20,3 +20,8 @@ class admin_contacts(admin.ModelAdmin):
     list_display = ('user_id','create_date','name','email','type','title')
 
 admin.site.register(m_contacts,admin_contacts)
+
+class admin_OpenAIThread(admin.ModelAdmin): 
+    list_display = ('user_id','thread_id','created_at','assistant_name')
+
+admin.site.register(OpenAIThread,admin_OpenAIThread)

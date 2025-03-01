@@ -123,7 +123,25 @@ def sendmsg(request):
     return JsonResponse({"message": answer, "tst": ans_tst}, status=200)
 
 openai.api_key = os.getenv('OPENAI_API_KEY')  # Replace with your OpenAI API key
-ASSISTANT_ID = os.getenv('ASSISTANT_ID')  # Replace with your OpenAI Assistant ID
+#ASSISTANT_ID = os.getenv('ASSISTANT_ID')  # Replace with your OpenAI Assistant ID
+
+def get_assistant_id_by_name(assistant_name):
+    assistant_name = "assistant_" + assistant_name
+    assistants = openai.beta.assistants.list().data  # Get list of assistants
+    for assistant in assistants:
+        if assistant.name == assistant_name:
+            return assistant.id
+    return None  # Return None if no match is found
+
+def return_static_msg(id):
+    static_ans = {
+        ".":"",
+        "a":"",
+        "b":"",
+        "c":"",
+        "d":""
+        }
+    return static_ans[id]
 
 def askopenai(msg, user_id):
     # Check if user has an existing thread
@@ -132,7 +150,8 @@ def askopenai(msg, user_id):
     if not thread:
         # Create a new thread if one does not exist
         thread_response = openai.beta.threads.create()
-        thread = OpenAIThread.objects.create(user_id=user_id, thread_id=thread_response.id)
+        assistant_name_save = "assistant_1"
+        thread = OpenAIThread.objects.create(user_id=user_id, thread_id=thread_response.id,assistant_name=assistant_name_save)
 
     # Send user message to OpenAI Assistant
     openai.beta.threads.messages.create(
@@ -144,7 +163,7 @@ def askopenai(msg, user_id):
     # Run Assistant processing
     run_response = openai.beta.threads.runs.create(
         thread_id=thread.thread_id,
-        assistant_id=ASSISTANT_ID
+        assistant_id=get_assistant_id_by_name(thread.assistant_name)
     )
 
     # Wait for completion
@@ -167,7 +186,30 @@ def askopenai(msg, user_id):
                 break
             except:
                 pass
-    return ai_response
+    
+    new_assistant_name_index = ai_response.find(';')
+    new_assistant_name = ai_response[:new_assistant_name_index].trim()
+    ans_msg = ai_response[new_assistant_name_index + 1:].trim()
+    if new_assistant_name_index!="0":
+        try:
+            tryint = int(new_assistant_name)
+            thread_response = openai.beta.threads.create(
+                messages=[
+                    {
+                        "role": "system",
+                        "content": ans_msg  # Add summary as the first message
+                    }
+                ]
+            )
+            thread = OpenAIThread.objects.filter(user_id=user_id).first()
+            thread.thread_id = thread_response.id
+            thread.assistant_name = new_assistant_name
+            thread.save()
+            ans_msg = askopenai(msg, user_id)
+
+        except ValueError:
+            ans_msg = return_static_msg(new_assistant_name)
+    return ans_msg
 
 
 #def askopenai(msg):
