@@ -20,7 +20,8 @@ def index(request):
         user_temp_id = ''.join(random.choices(string.ascii_letters + string.digits, k=25))
         context_data = {
             'msgs': [],
-            "agreed": 0
+            "agreed": 0,
+            "firstmsg":return_static_msg(".")
         }
         response = render(request, 'index.html', context_data)
         response.set_cookie('user_logged_in', user_temp_id, max_age=2147483647)
@@ -34,7 +35,8 @@ def index(request):
     
     context_data = {
         'msgs': msgs,
-        "agreed": agreed
+        "agreed": agreed,
+        "firstmsg":return_static_msg(".")
     }
     
     response = render(request, 'index.html', context_data)    
