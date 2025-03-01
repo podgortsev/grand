@@ -124,7 +124,7 @@ def sendmsg(request):
     m.assistant_name = answer[1]
     m.save()
     
-    return JsonResponse({"message": answer, "tst": ans_tst}, status=200)
+    return JsonResponse({"message": answer[0], "tst": ans_tst}, status=200)
 
 openai.api_key = os.getenv('OPENAI_API_KEY')  # Replace with your OpenAI API key
 #ASSISTANT_ID = os.getenv('ASSISTANT_ID')  # Replace with your OpenAI Assistant ID
@@ -190,7 +190,6 @@ def askopenai(msg, user_id, typ):
                 break
             except:
                 pass
-    return [ai_response,ans_assist]
     new_assistant_name_index = ai_response.find(';')
     new_assistant_name = ai_response[:new_assistant_name_index].strip()
     ans_msg = ai_response[new_assistant_name_index + 1:].strip()
