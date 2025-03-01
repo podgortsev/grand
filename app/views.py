@@ -191,8 +191,9 @@ def askopenai(msg, user_id, typ):
             except:
                 pass
     new_assistant_name_index = str(ai_response).find(';')
-
+    
     new_assistant_name = ai_response[:new_assistant_name_index].strip()
+    return [new_assistant_name_index,ans_assist]
     ans_msg = ai_response[new_assistant_name_index + 1:].strip()
     if new_assistant_name_index!="0":
         try:
