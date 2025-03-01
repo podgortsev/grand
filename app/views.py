@@ -114,7 +114,7 @@ def sendmsg(request):
                 return JsonResponse({"error": "File size exceeds 50MB limit"}, status=400)
             savefiles(uploaded_file, request.COOKIES['user_logged_in'])
     
-    answer = askopenai(msg, request.COOKIES['user_logged_in'])    
+    answer = askopenai(msg, request.COOKIES['user_logged_in'],0)    
     ans_tst = datetime.now().strftime("%I:%M %p")
     
     m = m_msgs()
@@ -147,7 +147,7 @@ def return_static_msg(id):
         }
     return static_ans[id]
 
-def askopenai(msg, user_id):
+def askopenai(msg, user_id, typ):
     # Check if user has an existing thread
     thread = OpenAIThread.objects.filter(user_id=user_id).first()
     
@@ -205,20 +205,18 @@ def askopenai(msg, user_id):
                     }
                 ]
             )
+            if typ==1:
+                return ["please try again"+ai_response,"1"]
             thread = OpenAIThread.objects.filter(user_id=user_id).first()
             thread.thread_id = thread_response.id
             thread.assistant_name = new_assistant_name
             thread.save()
-            ans_msg = askopenai(msg, user_id)
+            ans_msg = askopenai(msg, user_id, 1)
             ans_assist = new_assistant_name
 
         except ValueError:
             ans_msg = return_static_msg(new_assistant_name)
     return [ans_msg,ans_assist]
-
-
-#def askopenai(msg):
-#    return "LLM is still not working"
 
 def savefiles(uploaded_file, uid):
     fname = ''.join(random.choices(string.ascii_letters + string.digits, k=25)) + "_" + uploaded_file.name
