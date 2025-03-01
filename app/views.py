@@ -192,8 +192,8 @@ def askopenai(msg, user_id):
                 pass
     
     new_assistant_name_index = ai_response.find(';')
-    new_assistant_name = ai_response[:new_assistant_name_index].trim()
-    ans_msg = ai_response[new_assistant_name_index + 1:].trim()
+    new_assistant_name = ai_response[:new_assistant_name_index].strip()
+    ans_msg = ai_response[new_assistant_name_index + 1:].strip()
     if new_assistant_name_index!="0":
         try:
             tryint = int(new_assistant_name)
