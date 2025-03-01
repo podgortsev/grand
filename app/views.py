@@ -195,7 +195,7 @@ def askopenai(msg, user_id, typ):
     new_assistant_name = str(ai_response)[:new_assistant_name_index].strip()
     ans_msg = str(ai_response)[new_assistant_name_index + 1:].strip()
     
-    if new_assistant_name_index!=0:
+    if new_assistant_name!=0:
         try:
             tryint = int(new_assistant_name)
             
@@ -217,7 +217,6 @@ def askopenai(msg, user_id, typ):
 
         except ValueError:
             ans_msg = return_static_msg(new_assistant_name)
-    return [new_assistant_name_index,ans_assist]
     return [ans_msg,ans_assist]
 
 def savefiles(uploaded_file, uid):
