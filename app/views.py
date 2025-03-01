@@ -22,7 +22,7 @@ def index(request):
             'msgs': [],
             "agreed": 0
         }
-        response = render(request, 'index.html', context_data={})
+        response = render(request, 'index.html', context_data=context_data)
         response.set_cookie('user_logged_in', user_temp_id, max_age=2147483647)
         return response
     user_status = request.COOKIES.get('user_logged_in')
