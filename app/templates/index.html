@@ -463,7 +463,7 @@
         <nav class="sidebar expanded" id="sidebar">
             <div class="sidebar-header">
                 <i data-lucide="message-circle"></i>
-                <span class="nav-text" style="display: inline;">Ask Saba</span>
+                <span class="nav-text" style="display: inline;" id="asktxt">Ask Saba</span>
                 <button class="toggle-btn" id="toggleSidebar">
                     <i data-lucide="chevron-left"></i>
                 </button>
@@ -472,15 +472,15 @@
                 <i data-lucide="bot"></i>
                 <span class="nav-text">Assistant</span>
             </a>
-            <a href="/docs" class="nav-item">
+            <a href="/docs" class="nav-item" style="display: none;">
                 <i data-lucide="file-text"></i>
                 <span class="nav-text">Documents</span>
             </a>
-            <a href="/contacts" class="nav-item">
+            <a href="/contacts" class="nav-item" style="display: none;">
                 <i data-lucide="users"></i>
                 <span class="nav-text">Contacts</span>
             </a>
-            <a href="#" class="nav-item">
+            <a href="#" class="nav-item" style="display: none;">
                 <i data-lucide="settings"></i>
                 <span class="nav-text">Settings</span>
             </a>
@@ -567,10 +567,12 @@
             
 			if(istogg==0){
 				istogg = 1;
+                document.getElementById("asktxt").style.display = "none";
 				toggleBtn.innerHTML = "<i data-lucide='chevron-right'></i>";
 			}
 			else{
 				istogg = 0;
+                document.getElementById("asktxt").style.display = "inline";
 				toggleBtn.innerHTML = "<i data-lucide='chevron-left'></i>";
 			}
             lucide.createIcons();
