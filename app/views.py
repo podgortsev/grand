@@ -116,7 +116,7 @@ def sendmsg(request):
     
     answer = askopenai(msg, request.COOKIES['user_logged_in'],0)    
     ans_tst = datetime.now().strftime("%I:%M %p")
-    return JsonResponse({"message": "aaa", "tst": ans_tst}, status=200)
+    
     m = m_msgs()
     m.user_id = request.COOKIES['user_logged_in']
     m.if_user = False
@@ -196,13 +196,13 @@ def askopenai(msg, user_id, typ):
     if new_assistant_name_index!="0":
         try:
             tryint = int(new_assistant_name)
-            thread_response = openai.beta.threads.create(
-                messages=[
-                    {
-                        "role": "user",
-                        "content": ans_msg  # Add summary as the first message
-                    }
-                ]
+            
+            thread_response = openai.beta.threads.create()
+
+            openai.beta.threads.messages.create(
+                thread_id=thread_response.id,
+                role="user",
+                content=ans_msg
             )
             if typ==1:
                 return ["please try again"+ai_response,"1"]
