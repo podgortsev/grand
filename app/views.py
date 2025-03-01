@@ -102,6 +102,7 @@ def sendmsg(request):
     m.user_id = request.COOKIES['user_logged_in']
     m.if_user = True
     m.msg = msg
+    m.assistant_name = "0"
     m.save()
 
     files = request.FILES.getlist("files[]")
@@ -117,7 +118,8 @@ def sendmsg(request):
     m = m_msgs()
     m.user_id = request.COOKIES['user_logged_in']
     m.if_user = False
-    m.msg = answer
+    m.msg = answer[0]
+    m.assistant_name = answer[1]
     m.save()
     
     return JsonResponse({"message": answer, "tst": ans_tst}, status=200)
@@ -153,6 +155,7 @@ def askopenai(msg, user_id):
         assistant_name_save = "assistant_1"
         thread = OpenAIThread.objects.create(user_id=user_id, thread_id=thread_response.id,assistant_name=assistant_name_save)
 
+    ans_assist = thread.assistant_name
     # Send user message to OpenAI Assistant
     openai.beta.threads.messages.create(
         thread_id=thread.thread_id,
@@ -206,10 +209,11 @@ def askopenai(msg, user_id):
             thread.assistant_name = new_assistant_name
             thread.save()
             ans_msg = askopenai(msg, user_id)
+            ans_assist = new_assistant_name
 
         except ValueError:
             ans_msg = return_static_msg(new_assistant_name)
-    return ans_msg
+    return [ans_msg,ans_assist]
 
 
 #def askopenai(msg):

@@ -6,6 +6,7 @@ class m_msgs(models.Model):
     if_user = models.BooleanField()
     create_date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     msg = models.TextField()
+    assistant_name = models.CharField(default="0",null=True)
 
 class u_files(models.Model):
     user_id = models.CharField(max_length=255)

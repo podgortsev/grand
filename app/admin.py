@@ -2,7 +2,7 @@ from django.contrib import admin
 from app.models import m_msgs, u_files, term_agree, m_contacts, OpenAIThread
 
 class admin_m_msgs(admin.ModelAdmin): 
-    list_display = ('user_id','if_user', 'create_date', 'msg')
+    list_display = ('user_id','if_user', 'assistant_name','create_date', 'msg')
 
 admin.site.register(m_msgs,admin_m_msgs)
 
