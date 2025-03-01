@@ -200,7 +200,7 @@ def askopenai(msg, user_id):
             thread_response = openai.beta.threads.create(
                 messages=[
                     {
-                        "role": "system",
+                        "role": "user",
                         "content": ans_msg  # Add summary as the first message
                     }
                 ]
