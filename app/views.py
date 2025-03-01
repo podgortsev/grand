@@ -154,8 +154,7 @@ def askopenai(msg, user_id):
     if not thread:
         # Create a new thread if one does not exist
         thread_response = openai.beta.threads.create()
-        assistant_name_save = "assistant_1"
-        thread = OpenAIThread.objects.create(user_id=user_id, thread_id=thread_response.id,assistant_name=assistant_name_save)
+        thread = OpenAIThread.objects.create(user_id=user_id, thread_id=thread_response.id,assistant_name="1")
 
     ans_assist = thread.assistant_name
     # Send user message to OpenAI Assistant
