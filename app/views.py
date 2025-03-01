@@ -190,11 +190,11 @@ def askopenai(msg, user_id, typ):
                 break
             except:
                 pass
-    ai_response = str(ai_response)
-    new_assistant_name_index = ai_response.find(';')
+    new_assistant_name_index = str(ai_response).find(';')
     
-    new_assistant_name = ai_response[:new_assistant_name_index].strip()
-    ans_msg = ai_response[new_assistant_name_index + 1:].strip()
+    new_assistant_name = str(ai_response)[:new_assistant_name_index].strip()
+    ans_msg = str(ai_response)[new_assistant_name_index + 1:].strip()
+    return [new_assistant_name_index,ans_assist]
     if new_assistant_name_index!="0":
         try:
             tryint = int(new_assistant_name)
