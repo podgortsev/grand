@@ -155,7 +155,6 @@ def return_static_msg(id):
 
 def askopenai(msg, user_id, typ):
     try:
-        start_time = time.time()
         # Check if user has an existing thread
         thread = OpenAIThread.objects.filter(user_id=user_id).first()
         
@@ -171,13 +170,13 @@ def askopenai(msg, user_id, typ):
             role="user",
             content=msg
         )
-        rett = str(time.time() - start_time) + " seconds" + " bbb: "   
+        start_time = time.time()
         # Run Assistant processing
         run_response = openai.beta.threads.runs.create(
             thread_id=thread.thread_id,
             assistant_id=get_assistant_id_by_name(thread.assistant_name)
         )
-        rett = rett + str(time.time() - start_time) + " seconds" + " ccc: "   
+        rett = str(time.time() - start_time) + " seconds" + " ccc: "   
         # Wait for completion
         while True:
             run_status = openai.beta.threads.runs.retrieve(
