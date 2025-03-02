@@ -112,9 +112,9 @@ def sendmsg(request):
                 if uploaded_file.size > MAX_FILE_SIZE:
                     return JsonResponse({"error": "File size exceeds 50MB limit"}, status=400)
                 savefiles(uploaded_file, request.COOKIES['user_logged_in'])
-        start_time = time.time()
+        
         answer = askopenai(msg, request.COOKIES['user_logged_in'],0) 
-        rett = str(time.time() - start_time) + " seconds" + " eee: "   
+        return JsonResponse({"message": answer, "tst": datetime.now().strftime("%I:%M %p")}, status=200)
         ans_tst = datetime.now().strftime("%I:%M %p")
         
         m = m_msgs()
@@ -124,8 +124,7 @@ def sendmsg(request):
         m.assistant_name = answer[1]
         m.save()
         rett = rett + str(time.time() - start_time) + " seconds"
-        #return JsonResponse({"message": answer[0], "tst": ans_tst}, status=200)
-        return JsonResponse({"message": rett, "tst": ans_tst}, status=200)
+        return JsonResponse({"message": answer[0], "tst": ans_tst}, status=200)
     except Exception as e:
         try: 
             ans = "error1: "+str(e)+"\n"+answer
@@ -156,6 +155,7 @@ def return_static_msg(id):
 
 def askopenai(msg, user_id, typ):
     try:
+        start_time = time.time()
         # Check if user has an existing thread
         thread = OpenAIThread.objects.filter(user_id=user_id).first()
         
@@ -163,6 +163,7 @@ def askopenai(msg, user_id, typ):
             # Create a new thread if one does not exist
             thread_response = openai.beta.threads.create()
             thread = OpenAIThread.objects.create(user_id=user_id, thread_id=thread_response.id,assistant_name="1")
+        rett = str(time.time() - start_time) + " seconds" + " aaa: "   
 
         ans_assist = thread.assistant_name
         # Send user message to OpenAI Assistant
@@ -171,13 +172,13 @@ def askopenai(msg, user_id, typ):
             role="user",
             content=msg
         )
-
+        rett = rett + str(time.time() - start_time) + " seconds" + " bbb: "   
         # Run Assistant processing
         run_response = openai.beta.threads.runs.create(
             thread_id=thread.thread_id,
             assistant_id=get_assistant_id_by_name(thread.assistant_name)
         )
-
+        rett = rett + str(time.time() - start_time) + " seconds" + " ccc: "   
         # Wait for completion
         while True:
             run_status = openai.beta.threads.runs.retrieve(
@@ -187,10 +188,11 @@ def askopenai(msg, user_id, typ):
             if run_status.status == "completed":
                 break
             time.sleep(1)  # Avoid excessive API calls
-
+        rett = rett + str(time.time() - start_time) + " seconds" + " ddd: "   
         # Retrieve messages and extract Assistant's response
         messages = openai.beta.threads.messages.list(thread_id=thread.thread_id)
         ai_response = "1;I'm sorry, I couldn't process that."
+        rett = rett + str(time.time() - start_time) + " seconds" + " eee: "   
         for msg in messages.data:
             if msg.role == 'assistant':
                 try:
@@ -199,14 +201,14 @@ def askopenai(msg, user_id, typ):
                 except:
                     pass
         new_assistant_name_index = str(ai_response).find(';')
-        
+        rett = rett + str(time.time() - start_time) + " seconds" + " fff: "   
         new_assistant_name = str(ai_response)[:new_assistant_name_index].strip()
         ans_msg = str(ai_response)[new_assistant_name_index + 1:].strip()
         
         if new_assistant_name!="0":
             try:
                 tryint = int(new_assistant_name)
-                
+                rett = rett + str(time.time() - start_time) + " seconds" + " ggg: "   
                 thread_response = openai.beta.threads.create()
 
                 openai.beta.threads.messages.create(
@@ -222,10 +224,12 @@ def askopenai(msg, user_id, typ):
                 thread.save()
                 ans_msg = askopenai(msg, user_id, 1)
                 ans_assist = new_assistant_name
+                rett = rett + str(time.time() - start_time) + " seconds"   
 
             except ValueError:
                 ans_msg = return_static_msg(new_assistant_name)
-        return [ans_msg,ans_assist]
+        #return [ans_msg,ans_assist]
+        return [rett,ans_assist]
     except Exception as e:
         try: 
             sendans = "error3: "+ai_response
