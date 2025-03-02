@@ -114,7 +114,7 @@ def sendmsg(request):
                 savefiles(uploaded_file, request.COOKIES['user_logged_in'])
         start_time = time.time()
         answer = askopenai(msg, request.COOKIES['user_logged_in'],0) 
-        rett = rett + str(time.time() - start_time) + " seconds" + " eee: "   
+        rett = str(time.time() - start_time) + " seconds" + " eee: "   
         ans_tst = datetime.now().strftime("%I:%M %p")
         
         m = m_msgs()
