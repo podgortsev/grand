@@ -163,8 +163,7 @@ def askopenai(msg, user_id, typ):
             # Create a new thread if one does not exist
             thread_response = openai.beta.threads.create()
             thread = OpenAIThread.objects.create(user_id=user_id, thread_id=thread_response.id,assistant_name="1")
-        rett = str(time.time() - start_time) + " seconds" + " aaa: "   
-
+        
         ans_assist = thread.assistant_name
         # Send user message to OpenAI Assistant
         openai.beta.threads.messages.create(
@@ -172,7 +171,7 @@ def askopenai(msg, user_id, typ):
             role="user",
             content=msg
         )
-        rett = rett + str(time.time() - start_time) + " seconds" + " bbb: "   
+        rett = str(time.time() - start_time) + " seconds" + " bbb: "   
         # Run Assistant processing
         run_response = openai.beta.threads.runs.create(
             thread_id=thread.thread_id,
@@ -187,7 +186,7 @@ def askopenai(msg, user_id, typ):
             )
             if run_status.status == "completed":
                 break
-            time.sleep(1)  # Avoid excessive API calls
+            time.sleep(0.2)  # Avoid excessive API calls
         rett = rett + str(time.time() - start_time) + " seconds" + " ddd: "   
         # Retrieve messages and extract Assistant's response
         messages = openai.beta.threads.messages.list(thread_id=thread.thread_id)
