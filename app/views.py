@@ -94,28 +94,31 @@ def docs(request):
 @csrf_exempt    
 def sendmsg(request):
     try:
+        start_time = time.time()
+        rett = "aaa: "
         if request.method != "POST":
             return JsonResponse({"error": "Invalid request method"}, status=400)
 
         msg = request.POST.get("msg")
         if not msg:
             return JsonResponse({"error": "Message is required"}, status=400)
-
+        rett = rett + (time.time() - start_time) + " seconds" + " bbb: "
         m = m_msgs()
         m.user_id = request.COOKIES['user_logged_in']
         m.if_user = True
         m.msg = msg
         m.assistant_name = "0"
         m.save()
-
+        rett = rett + (time.time() - start_time) + " seconds" + " ccc: "
         files = request.FILES.getlist("files[]")
         if files:
             for uploaded_file in files:
                 if uploaded_file.size > MAX_FILE_SIZE:
                     return JsonResponse({"error": "File size exceeds 50MB limit"}, status=400)
                 savefiles(uploaded_file, request.COOKIES['user_logged_in'])
-        
-        answer = askopenai(msg, request.COOKIES['user_logged_in'],0)    
+        rett = rett + (time.time() - start_time) + " seconds" + " ddd: "
+        answer = askopenai(msg, request.COOKIES['user_logged_in'],0) 
+        rett = rett + (time.time() - start_time) + " seconds" + " eee: "   
         ans_tst = datetime.now().strftime("%I:%M %p")
         
         m = m_msgs()
@@ -124,8 +127,9 @@ def sendmsg(request):
         m.msg = answer[0]
         m.assistant_name = answer[1]
         m.save()
-        
-        return JsonResponse({"message": answer[0], "tst": ans_tst}, status=200)
+        rett = rett + (time.time() - start_time) + " seconds"
+        #return JsonResponse({"message": answer[0], "tst": ans_tst}, status=200)
+        return JsonResponse({"message": rett, "tst": ans_tst}, status=200)
     except Exception as e:
         try: 
             ans = "error1: "+str(e)+"\n"+answer
