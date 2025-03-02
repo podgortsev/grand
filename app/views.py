@@ -123,7 +123,6 @@ def sendmsg(request):
         m.msg = answer[0]
         m.assistant_name = answer[1]
         m.save()
-        rett = rett + str(time.time() - start_time) + " seconds"
         return JsonResponse({"message": answer[0], "tst": ans_tst}, status=200)
     except Exception as e:
         try: 
@@ -170,15 +169,11 @@ def askopenai(msg, user_id, typ):
             role="user",
             content=msg
         )
-        start_time = time.time()
-        aaa = get_assistant_id_by_name(thread.assistant_name)
-        rett = str(time.time() - start_time) + " seconds" + " aaa: "
         # Run Assistant processing
         run_response = openai.beta.threads.runs.create(
             thread_id=thread.thread_id,
             assistant_id=get_assistant_id_by_name(thread.assistant_name)
         )
-        rett = rett + str(time.time() - start_time) + " seconds" + " ccc: "   
         # Wait for completion
         while True:
             run_status = openai.beta.threads.runs.retrieve(
@@ -188,7 +183,6 @@ def askopenai(msg, user_id, typ):
             if run_status.status == "completed":
                 break
             time.sleep(0.2)  # Avoid excessive API calls
-        rett = rett + str(time.time() - start_time) + " seconds" + " ddd: "   
         # Retrieve messages and extract Assistant's response
         messages = openai.beta.threads.messages.list(thread_id=thread.thread_id)
         ai_response = "1;I'm sorry, I couldn't process that."
@@ -224,12 +218,10 @@ def askopenai(msg, user_id, typ):
 
             except ValueError:
                 ans_msg = return_static_msg(new_assistant_name)
-        #return [ans_msg,ans_assist]
-        return [rett,ans_assist]
+        return [ans_msg,ans_assist]
     except Exception as e:
         try: 
-            #sendans = "error3: "+ai_response
-            sendans = rett
+            sendans = "error3: "+ai_response
             return [sendans,ans_assist]
         except:
             return ["error NA",999]
