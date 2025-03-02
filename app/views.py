@@ -200,14 +200,12 @@ def askopenai(msg, user_id, typ):
                 except:
                     pass
         new_assistant_name_index = str(ai_response).find(';')
-        rett = rett + str(time.time() - start_time) + " seconds" + " fff: "   
         new_assistant_name = str(ai_response)[:new_assistant_name_index].strip()
         ans_msg = str(ai_response)[new_assistant_name_index + 1:].strip()
         
         if new_assistant_name!="0":
             try:
                 tryint = int(new_assistant_name)
-                rett = rett + str(time.time() - start_time) + " seconds" + " ggg: "   
                 thread_response = openai.beta.threads.create()
 
                 openai.beta.threads.messages.create(
