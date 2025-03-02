@@ -171,12 +171,14 @@ def askopenai(msg, user_id, typ):
             content=msg
         )
         start_time = time.time()
+        aaa = get_assistant_id_by_name(thread.assistant_name)
+        rett = str(time.time() - start_time) + " seconds" + " aaa: "
         # Run Assistant processing
         run_response = openai.beta.threads.runs.create(
             thread_id=thread.thread_id,
             assistant_id=get_assistant_id_by_name(thread.assistant_name)
         )
-        rett = str(time.time() - start_time) + " seconds" + " ccc: "   
+        rett = rett + str(time.time() - start_time) + " seconds" + " ccc: "   
         # Wait for completion
         while True:
             run_status = openai.beta.threads.runs.retrieve(
@@ -190,7 +192,6 @@ def askopenai(msg, user_id, typ):
         # Retrieve messages and extract Assistant's response
         messages = openai.beta.threads.messages.list(thread_id=thread.thread_id)
         ai_response = "1;I'm sorry, I couldn't process that."
-        rett = rett + str(time.time() - start_time) + " seconds" + " eee: "   
         for msg in messages.data:
             if msg.role == 'assistant':
                 try:
@@ -220,7 +221,6 @@ def askopenai(msg, user_id, typ):
                 thread.save()
                 ans_msg = askopenai(msg, user_id, 1)
                 ans_assist = new_assistant_name
-                rett = rett + str(time.time() - start_time) + " seconds"   
 
             except ValueError:
                 ans_msg = return_static_msg(new_assistant_name)
