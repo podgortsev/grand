@@ -228,7 +228,8 @@ def askopenai(msg, user_id, typ):
         return [ans_msg,ans_assist]
     except Exception as e:
         try: 
-            return ["error3: "+str(e)+"\n"+ai_response,ans_assist]
+            sendans = "error3: "+str(e)+"\n"+ai_response
+            return [sendans,ans_assist]
         except:
             return ["error NA",999]
 
