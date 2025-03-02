@@ -94,29 +94,25 @@ def docs(request):
 @csrf_exempt    
 def sendmsg(request):
     try:
-        start_time = time.time()
-        rett = "aaa: "
         if request.method != "POST":
             return JsonResponse({"error": "Invalid request method"}, status=400)
 
         msg = request.POST.get("msg")
         if not msg:
             return JsonResponse({"error": "Message is required"}, status=400)
-        rett = rett + str(time.time() - start_time) + " seconds" + " bbb: "
         m = m_msgs()
         m.user_id = request.COOKIES['user_logged_in']
         m.if_user = True
         m.msg = msg
         m.assistant_name = "0"
         m.save()
-        rett = rett + str(time.time() - start_time) + " seconds" + " ccc: "
         files = request.FILES.getlist("files[]")
         if files:
             for uploaded_file in files:
                 if uploaded_file.size > MAX_FILE_SIZE:
                     return JsonResponse({"error": "File size exceeds 50MB limit"}, status=400)
                 savefiles(uploaded_file, request.COOKIES['user_logged_in'])
-        rett = rett + str(time.time() - start_time) + " seconds" + " ddd: "
+        start_time = time.time()
         answer = askopenai(msg, request.COOKIES['user_logged_in'],0) 
         rett = rett + str(time.time() - start_time) + " seconds" + " eee: "   
         ans_tst = datetime.now().strftime("%I:%M %p")
