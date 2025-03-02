@@ -128,9 +128,9 @@ def sendmsg(request):
         return JsonResponse({"message": answer[0], "tst": ans_tst}, status=200)
     except Exception as e:
         try: 
-            ans = "error"+str(e)+"\n"+answer
+            ans = "error1: "+str(e)+"\n"+answer
         except:
-            ans = "error"+str(e)
+            ans = "error2: "+str(e)
         return JsonResponse({"message": ans, "tst": datetime.now().strftime("%I:%M %p")}, status=200)
 
 openai.api_key = os.getenv('OPENAI_API_KEY')  # Replace with your OpenAI API key
@@ -226,9 +226,9 @@ def askopenai(msg, user_id, typ):
             except ValueError:
                 ans_msg = return_static_msg(new_assistant_name)
         return [ans_msg,ans_assist]
-    except:
+    except Exception as e:
         try: 
-            return ["error: "+ai_response,ans_assist]
+            return ["error3: "+str(e)+"\n"+ai_response,ans_assist]
         except:
             return ["error NA",999]
 
