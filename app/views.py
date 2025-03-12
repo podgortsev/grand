@@ -12,8 +12,13 @@ import random
 import string
 import time
 import os
+from django.contrib.admin.views.decorators import staff_member_required
 # Max file size allowed (in bytes), here it's set to 50MB
 MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB
+
+@staff_member_required  # Ensures only staff can access this view
+def custom_admin_page(request):
+    return render(request, 'admin/custom_page.html')
 
 def index(request):
     if 'user_logged_in' not in request.COOKIES:
