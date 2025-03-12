@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-7btcqw=@8%uxk^fb_f(ei=ua@eb=!%lheyvx*_2l$(&nh-j_f@'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -31,6 +31,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -39,6 +40,38 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'app',
 ]
+
+JAZZMIN_SETTINGS = {
+    "site_title": "AskSaba",
+    "site_header": "AskSaba",
+    "site_brand": "AskSaba",
+    "copyright": "AskSaba",
+    "welcome_sign": "Welcome to AskSaba",
+    "show_sidebar": True,
+    "navigation_expanded": True,
+    "site_logo": "admin/img/logo.png",
+    "site_icon": "admin/img/favicon.png",
+    "login_logo": "admin/img/favicon.png",
+    "icons": {
+        "app": "fas fa-users-cog",
+        "app.client": "fas fa-users",
+        "app.company": "fas fa-user-tie",
+    },
+    
+    "order_with_respect_to": ["app"],
+    # Hide these apps when generating side menu e.g (auth)
+    "hide_apps": [],
+
+    # Hide these models when generating side menu (e.g auth.user)
+    "hide_models": [],
+    #"show_ui_builder": True,
+    "menu": [
+        {"label": "Home", "icon": "fas fa-home", "url": "/admin/"},
+        {"label": "Assistant", "icon": "fas fa-comments", "url": "/admin/assistant/"},
+        {"label": "App", "icon": "fas fa-users-cog", "models": ["app.client", "app.company"]},
+    ]
+
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -56,7 +89,7 @@ ROOT_URLCONF = 'askgrandpa.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -130,6 +163,9 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
